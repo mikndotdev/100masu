@@ -1,1 +1,4 @@
-@import "@100masu/ui/globals.css";
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: synthwave --default;
+}

@@ -31,7 +31,9 @@
     "db:push": "turbo run db:push -F @100masu/db",
     "db:studio": "turbo run db:studio -F @100masu/db",
     "db:generate": "turbo run db:generate -F @100masu/db",
-    "db:migrate": "turbo run db:migrate -F @100masu/db"
+    "db:migrate": "turbo run db:migrate -F @100masu/db",
+    "check": "oxlint && oxfmt --write",
+    "format": "oxfmt --write"
   },
   "dependencies": {
     "@100masu/env": "workspace:*",
@@ -41,6 +43,8 @@
   "devDependencies": {
     "@100masu/config": "workspace:*",
     "@types/node": "^22.13.14",
+    "oxfmt": "^0.60.0",
+    "oxlint": "^1.75.0",
     "turbo": "^2.10.2",
     "typescript": "catalog:"
   },

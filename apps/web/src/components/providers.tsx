@@ -1,14 +1,16 @@
 "use client";
 
-import { Toaster } from "@100masu/ui/components/sonner";
-
-import { ThemeProvider } from "./theme-provider";
+import { Toaster } from "sonner";
+import { SoundProvider } from "@/components/soundProvider";
+import { NuqsAdapter } from "nuqs/adapters/next";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      {children}
-      <Toaster richColors />
-    </ThemeProvider>
+    <NuqsAdapter>
+      <SoundProvider>
+        {children}
+        <Toaster richColors />
+      </SoundProvider>
+    </NuqsAdapter>
   );
 }

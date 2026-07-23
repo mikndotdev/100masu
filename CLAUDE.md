@@ -1,0 +1,2 @@
+- No comments on all code unless specifically requested.
+- When doing database migrations, stop after editing the schema, and let the user run the migration. Don't run it yourself.
