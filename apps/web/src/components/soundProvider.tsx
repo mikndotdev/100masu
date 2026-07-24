@@ -1,38 +1,58 @@
 "use client";
 
 import { Howl } from "howler";
-import { createContext, useCallback, useContext, useEffect, useRef } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { SOUND_EFFECTS, type SoundKey } from "@/lib/sounds";
-import { useMe } from "@/stores/me";
-import { useSoundStore } from "@/stores/sound";
 
 type SoundContextValue = {
   play: (key: SoundKey) => void;
+  muted: boolean;
+  setMuted: (muted: boolean) => void;
+  toggleMuted: () => void;
 };
+
+const STORAGE_KEY = "100masu:sound-muted";
 
 const SoundContext = createContext<SoundContextValue | null>(null);
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
   const cache = useRef<Map<SoundKey, Howl>>(new Map());
-  const soundEffects = useMe((s) => s.data?.soundEffects);
+  const [muted, setMutedState] = useState(false);
 
   useEffect(() => {
-    if (soundEffects !== undefined && soundEffects !== null) {
-      useSoundStore.getState().setMuted(!soundEffects);
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored !== null) {
+      setMutedState(stored === "true");
     }
-  }, [soundEffects]);
-
-  const play = useCallback((key: SoundKey) => {
-    if (useSoundStore.getState().muted) return;
-
-    let sound = cache.current.get(key);
-    if (!sound) {
-      sound = new Howl({ src: [SOUND_EFFECTS[key]], preload: true, volume: 0.5 });
-      cache.current.set(key, sound);
-    }
-    sound.play();
   }, []);
+
+  const setMuted = useCallback((next: boolean) => {
+    setMutedState(next);
+    window.localStorage.setItem(STORAGE_KEY, String(next));
+  }, []);
+
+  const toggleMuted = useCallback(() => {
+    setMutedState((prev) => {
+      const next = !prev;
+      window.localStorage.setItem(STORAGE_KEY, String(next));
+      return next;
+    });
+  }, []);
+
+  const play = useCallback(
+    (key: SoundKey) => {
+      if (muted) return;
+
+      let sound = cache.current.get(key);
+      if (!sound) {
+        sound = new Howl({ src: [SOUND_EFFECTS[key]], preload: true, volume: 0.5 });
+        cache.current.set(key, sound);
+      }
+      sound.play();
+    },
+    [muted],
+  );
 
   useEffect(() => {
     const sounds = cache.current;
@@ -42,7 +62,11 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <SoundContext.Provider value={{ play }}>{children}</SoundContext.Provider>;
+  return (
+    <SoundContext.Provider value={{ play, muted, setMuted, toggleMuted }}>
+      {children}
+    </SoundContext.Provider>
+  );
 }
 
 export function useSoundEffect() {

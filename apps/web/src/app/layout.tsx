@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Gloria_Hallelujah } from "next/font/google";
 import Providers from "@/components/providers";
 
 import "../index.css";
@@ -11,6 +11,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const gloriaHallelujah = Gloria_Hallelujah({
+  variable: "--font-gloria",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -26,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${gloriaHallelujah.variable} antialiased`}
+      >
         <Providers>
           <div className="">{children}</div>
         </Providers>
