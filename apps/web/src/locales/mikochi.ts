@@ -81,7 +81,13 @@ export const mikochi = {
     playAgain: "おなじもんだいでもういっかい！",
     noResult: "なにかおかしいよ？",
   },
+  menu: {
+    title: "めにゅー",
+  },
+  sound: {
+    label: "おと",
+  },
   language: {
-    label: "ことば",
+    label: "げんご",
   },
 };

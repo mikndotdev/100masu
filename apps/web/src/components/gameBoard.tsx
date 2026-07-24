@@ -43,7 +43,7 @@ function sanitizeNumber(raw: string): string {
 }
 
 const headerClass =
-  "flex aspect-square items-center justify-center rounded-md bg-base-300 text-base font-bold tabular-nums sm:text-xl";
+  "flex aspect-square items-center justify-center rounded-md bg-base-300 text-base font-bold tabular-nums md:text-xl";
 
 export default function GameBoard({
   board,
@@ -107,50 +107,55 @@ export default function GameBoard({
   }
 
   return (
-    <div ref={containerRef} className="grid w-full grid-cols-11 gap-1">
-      <div className="flex aspect-square items-center justify-center rounded-md bg-primary text-lg font-bold text-primary-content sm:text-2xl">
-        {OPERATION_SYMBOL[op]}
-      </div>
-      {board.top.map((value, col) => (
-        <div key={`top-${col}`} className={headerClass}>
-          {value}
+    <div className="overflow-x-auto">
+      <div
+        ref={containerRef}
+        className="grid w-max grid-cols-[repeat(11,2.75rem)] gap-1 md:w-full md:grid-cols-11"
+      >
+        <div className="flex aspect-square items-center justify-center rounded-md bg-primary text-lg font-bold text-primary-content md:text-2xl">
+          {OPERATION_SYMBOL[op]}
         </div>
-      ))}
-      {board.left.map((rowValue, row) => (
-        <Fragment key={`row-${row}`}>
-          <div className={headerClass}>{rowValue}</div>
-          {board.top.map((colValue, col) => {
-            const index = row * GRID_SIZE + col;
-            const value = answers[index] ?? "";
-            const answerable = isAnswerable(op, rowValue, colValue);
-            const filled = value.trim() !== "";
-            const correct = checkAnswer(op, rowValue, colValue, value);
-            const committedShow = filled && committed.has(index) && activeIndex !== index;
-            const shouldShow = check === "input" ? committedShow : showResults;
+        {board.top.map((value, col) => (
+          <div key={`top-${col}`} className={headerClass}>
+            {value}
+          </div>
+        ))}
+        {board.left.map((rowValue, row) => (
+          <Fragment key={`row-${row}`}>
+            <div className={headerClass}>{rowValue}</div>
+            {board.top.map((colValue, col) => {
+              const index = row * GRID_SIZE + col;
+              const value = answers[index] ?? "";
+              const answerable = isAnswerable(op, rowValue, colValue);
+              const filled = value.trim() !== "";
+              const correct = checkAnswer(op, rowValue, colValue, value);
+              const committedShow = filled && committed.has(index) && activeIndex !== index;
+              const shouldShow = check === "input" ? committedShow : showResults;
 
-            return (
-              <div key={`cell-${row}-${col}`} className="aspect-square">
-                <input
-                  data-cell={`${row}-${col}`}
-                  type="number"
-                  autoComplete="off"
-                  disabled={!answerable}
-                  value={value}
-                  onChange={(event) => onCellChange(index, sanitizeNumber(event.target.value))}
-                  onBlur={() => handleBlur(index)}
-                  onFocus={() => handleFocus(index, row, col)}
-                  onKeyDown={(event) => handleKeyDown(event, row, col)}
-                  className={`input input-bordered size-full min-w-0 rounded-md p-0 text-center text-3xl font-bold [appearance:textfield] [font-family:var(--font-gloria)] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputStateClass(
-                    answerable,
-                    shouldShow,
-                    correct,
-                  )}`}
-                />
-              </div>
-            );
-          })}
-        </Fragment>
-      ))}
+              return (
+                <div key={`cell-${row}-${col}`} className="aspect-square">
+                  <input
+                    data-cell={`${row}-${col}`}
+                    type="number"
+                    autoComplete="off"
+                    disabled={!answerable}
+                    value={value}
+                    onChange={(event) => onCellChange(index, sanitizeNumber(event.target.value))}
+                    onBlur={() => handleBlur(index)}
+                    onFocus={() => handleFocus(index, row, col)}
+                    onKeyDown={(event) => handleKeyDown(event, row, col)}
+                    className={`input input-bordered size-full min-w-0 rounded-md p-0 text-center text-2xl font-bold [appearance:textfield] [font-family:var(--font-gloria)] md:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputStateClass(
+                      answerable,
+                      shouldShow,
+                      correct,
+                    )}`}
+                  />
+                </div>
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 import { Toaster } from "sonner";
 
+import MobileMenu from "@/components/mobileMenu";
 import { SoundProvider } from "@/components/soundProvider";
 import i18n, { LANGUAGE_STORAGE_KEY } from "@/lib/i18n";
 
@@ -21,7 +22,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <NuqsAdapter>
         <SoundProvider>
           {children}
-          <Toaster richColors />
+          <MobileMenu />
+          <Toaster richColors position={"bottom-center"} />
         </SoundProvider>
       </NuqsAdapter>
     </I18nextProvider>

@@ -80,8 +80,8 @@ export default function TitleScreen({
             transition={{ type: "spring", stiffness: 220, damping: 18 }}
             className="flex flex-col items-center gap-5 px-6 text-center"
           >
-            <span className="text-5xl font-bold sm:text-6xl">{t("app.title")}</span>
-            <div className="flex items-center gap-3 text-3xl font-bold">
+            <span className="text-4xl font-bold text-balance md:text-6xl">{t("app.title")}</span>
+            <div className="flex items-center gap-3 text-2xl font-bold md:text-3xl">
               <span className="text-primary">{OPERATION_SYMBOL[op]}</span>
               <span>{t(`op.${op}`)}</span>
             </div>
@@ -102,7 +102,7 @@ export default function TitleScreen({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 2.2, opacity: 0, transition: { duration: 0.2 } }}
             transition={{ type: "spring", stiffness: 260, damping: 15 }}
-            className="text-8xl font-black text-primary sm:text-9xl"
+            className="text-5xl font-black whitespace-nowrap text-primary md:text-9xl"
           >
             {countdownLabel}
           </motion.div>

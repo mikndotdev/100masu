@@ -80,6 +80,12 @@ export const en = {
     playAgain: "Retry this puzzle",
     noResult: "No result to show",
   },
+  menu: {
+    title: "Menu",
+  },
+  sound: {
+    label: "Sound",
+  },
   language: {
     label: "Language",
   },

@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import LanguageSwitch from "@/components/languageSwitch";
 import { useSoundEffect } from "@/components/soundProvider";
+import SoundToggle from "@/components/soundToggle";
 import { emptyAnswers, formatDuration, OPERATION_SYMBOL } from "@/lib/game";
 import { puzzleParser } from "@/lib/gameParams";
 
@@ -57,7 +58,7 @@ function ResultContent() {
 
   if (!puzzle || puzzle.startedAt === null || puzzle.finishedAt === null) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
         <h1 className="text-2xl font-bold">{t("result.noResult")}</h1>
         <Link href="/" className="btn btn-primary">
           {t("play.goToSetup")}
@@ -74,9 +75,10 @@ function ResultContent() {
   const playAgainHref = (freshToken ? `/play?d=${freshToken}` : "/") as Route;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-6 px-4 py-12">
-      <div className="flex w-full justify-end">
+    <main className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center gap-6 px-4 py-12">
+      <div className="hidden w-full items-center justify-end gap-2 md:flex">
         <LanguageSwitch />
+        <SoundToggle />
       </div>
 
       <div className="card w-full bg-base-200 shadow-xl">

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import LanguageSwitch from "@/components/languageSwitch";
 import RecentGames from "@/components/recentGames";
+import SoundToggle from "@/components/soundToggle";
 import { emptyAnswers, generateBoard, GRID_SIZE, OPERATION_SYMBOL, OPERATIONS } from "@/lib/game";
 import { type PuzzleState, serializePuzzle, settingsParsers } from "@/lib/gameParams";
 
@@ -42,9 +43,10 @@ function HomePageContent() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center gap-8 px-4 py-12">
-      <div className="flex w-full justify-end">
+    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center gap-8 px-4 py-12">
+      <div className="hidden w-full items-center justify-end gap-2 md:flex">
         <LanguageSwitch />
+        <SoundToggle />
       </div>
 
       <header className="text-center">

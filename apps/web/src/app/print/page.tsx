@@ -7,6 +7,7 @@ import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import LanguageSwitch from "@/components/languageSwitch";
+import SoundToggle from "@/components/soundToggle";
 import { puzzleParser } from "@/lib/gameParams";
 
 const PrintWorksheet = dynamic(() => import("@/components/printWorksheet"), {
@@ -21,7 +22,7 @@ function PrintPageContent() {
 
   if (!puzzle) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
         <h1 className="text-2xl font-bold">{t("print.noWorksheetTitle")}</h1>
         <p className="text-base-content/70">{t("print.noWorksheetBody")}</p>
         <Link href="/" className="btn btn-primary">
@@ -34,7 +35,7 @@ function PrintPageContent() {
   const board = { top: puzzle.top, left: puzzle.left };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex min-h-dvh max-w-5xl flex-col gap-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{t("print.title")}</h1>
@@ -43,7 +44,10 @@ function PrintPageContent() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <LanguageSwitch />
+          <div className="hidden items-center gap-2 md:flex">
+            <LanguageSwitch />
+            <SoundToggle />
+          </div>
           <label className="label cursor-pointer gap-2">
             <span className="label-text">{t("print.answerKey")}</span>
             <input

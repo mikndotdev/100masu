@@ -14,7 +14,7 @@ export default function CurrentCalculation({ op, left, top }: CurrentCalculation
   return (
     <div className="flex min-h-20 items-center justify-center rounded-box bg-base-200 px-6 py-4 shadow">
       {active ? (
-        <div className="flex items-baseline gap-3 text-4xl font-bold tabular-nums [font-family:var(--font-dseg)] sm:text-5xl">
+        <div className="flex items-baseline gap-3 text-3xl font-bold tabular-nums [font-family:var(--font-dseg)] md:text-5xl">
           <span>{left}</span>
           <span className="text-primary">{OPERATION_DISPLAY_SYMBOL[op]}</span>
           <span>{top}</span>

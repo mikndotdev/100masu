@@ -80,6 +80,12 @@ export const ja = {
     playAgain: "同じ問題でもう一回！",
     noResult: "無効なリンクです。",
   },
+  menu: {
+    title: "メニュー",
+  },
+  sound: {
+    label: "音",
+  },
   language: {
     label: "言語",
   },

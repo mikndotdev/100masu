@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import CurrentCalculation from "@/components/currentCalculation";
 import GameBoard from "@/components/gameBoard";
 import LanguageSwitch from "@/components/languageSwitch";
 import { useSoundEffect } from "@/components/soundProvider";
+import SoundToggle from "@/components/soundToggle";
 import Stopwatch from "@/components/stopwatch";
 import TitleScreen from "@/components/titleScreen";
 import WinScreen from "@/components/winScreen";
@@ -29,7 +30,7 @@ function PlayPageContent() {
     "d",
     puzzleParser.withOptions({ history: "replace", throttleMs: 200 }),
   );
-  const { play, muted, toggleMuted } = useSoundEffect();
+  const { play } = useSoundEffect();
   const router = useRouter();
 
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
@@ -172,7 +173,7 @@ function PlayPageContent() {
 
   if (!puzzle) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
         <h1 className="text-2xl font-bold">{t("play.noPuzzleTitle")}</h1>
         <p className="text-base-content/70">{t("play.noPuzzleBody")}</p>
         <Link href="/" className="btn btn-primary">
@@ -191,7 +192,7 @@ function PlayPageContent() {
   const activeTop = activeCell ? (puzzle.top[activeCell.col] ?? null) : null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex min-h-dvh max-w-4xl flex-col gap-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{t(`op.${puzzle.op}`)}</h1>
@@ -201,15 +202,10 @@ function PlayPageContent() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <LanguageSwitch />
-          <button
-            type="button"
-            onClick={toggleMuted}
-            aria-label={muted ? t("play.unmute") : t("play.mute")}
-            className="btn btn-ghost btn-square"
-          >
-            {muted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
-          </button>
+          <div className="hidden items-center gap-2 md:flex">
+            <LanguageSwitch />
+            <SoundToggle />
+          </div>
           <Link href="/" className="btn btn-outline">
             {t("play.newPuzzle")}
           </Link>

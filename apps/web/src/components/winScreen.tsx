@@ -30,7 +30,7 @@ export default function WinScreen({ onComplete }: { onComplete: () => void }) {
         initial={{ scale: 0.4, opacity: 0, rotate: -8 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 240, damping: 12 }}
-        className="text-center text-5xl font-black text-primary sm:text-7xl"
+        className="text-center text-4xl font-black text-balance text-primary md:text-7xl"
       >
         {t("win.title")}
       </motion.div>
