@@ -2,13 +2,14 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useSoundEffect } from "@/components/soundProvider";
-import { OPERATION_LABEL, OPERATION_SYMBOL, type Operation, type Order } from "@/lib/game";
+import { OPERATION_SYMBOL, type Operation, type Order } from "@/lib/game";
 
 const TITLE_MS = 2200;
 const STEP_MS = 800;
-const COUNTDOWN = ["3", "2", "1", "Go!"];
+const COUNTDOWN = ["3", "2", "1", "go"];
 
 type TitleScreenProps = {
   op: Operation;
@@ -27,6 +28,7 @@ export default function TitleScreen({
   check,
   onComplete,
 }: TitleScreenProps) {
+  const { t } = useTranslation();
   const { play } = useSoundEffect();
   const [stage, setStage] = useState<"title" | "countdown">("title");
   const [step, setStep] = useState(0);
@@ -58,6 +60,8 @@ export default function TitleScreen({
     };
   }, [play, onComplete]);
 
+  const countdownLabel = step === COUNTDOWN.length - 1 ? t("intro.go") : (COUNTDOWN[step] ?? "");
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -76,20 +80,18 @@ export default function TitleScreen({
             transition={{ type: "spring", stiffness: 220, damping: 18 }}
             className="flex flex-col items-center gap-5 px-6 text-center"
           >
-            <span className="text-5xl font-bold sm:text-6xl">100‑masu</span>
+            <span className="text-5xl font-bold sm:text-6xl">{t("app.title")}</span>
             <div className="flex items-center gap-3 text-3xl font-bold">
               <span className="text-primary">{OPERATION_SYMBOL[op]}</span>
-              <span>{OPERATION_LABEL[op]}</span>
+              <span>{t(`op.${op}`)}</span>
             </div>
             <div className="flex flex-wrap justify-center gap-2">
               <span className="badge badge-lg badge-outline">
-                Numbers {start}–{end}
+                {t("play.numbers", { start, end })}
               </span>
+              <span className="badge badge-lg badge-outline">{t(`order.${order}`)}</span>
               <span className="badge badge-lg badge-outline">
-                {order === "rand" ? "Random" : "Sequential"}
-              </span>
-              <span className="badge badge-lg badge-outline">
-                {check === "input" ? "Instant check" : "Check at end"}
+                {check === "input" ? t("intro.instantCheck") : t("intro.checkAtEnd")}
               </span>
             </div>
           </motion.div>
@@ -102,7 +104,7 @@ export default function TitleScreen({
             transition={{ type: "spring", stiffness: 260, damping: 15 }}
             className="text-8xl font-black text-primary sm:text-9xl"
           >
-            {COUNTDOWN[step] ?? ""}
+            {countdownLabel}
           </motion.div>
         ) : null}
       </AnimatePresence>

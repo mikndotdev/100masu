@@ -1,32 +1,35 @@
 "use client";
 
+import type { TFunction } from "i18next";
 import { Trash2 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { CELL_COUNT, GRID_SIZE, isAnswerable, OPERATION_LABEL, OPERATION_SYMBOL } from "@/lib/game";
+import { CELL_COUNT, GRID_SIZE, isAnswerable, OPERATION_SYMBOL } from "@/lib/game";
 import { puzzleParser } from "@/lib/gameParams";
 import { deleteSavedGame, loadSavedGames, type SavedGame } from "@/lib/savedGames";
 
-function formatRelative(timestamp: number): string {
+function formatRelative(t: TFunction, timestamp: number): string {
   const seconds = Math.max(0, Math.round((Date.now() - timestamp) / 1000));
   if (seconds < 60) {
-    return "just now";
+    return t("recent.justNow");
   }
   const minutes = Math.round(seconds / 60);
   if (minutes < 60) {
-    return `${minutes} min ago`;
+    return t("recent.minutesAgo", { value: minutes });
   }
   const hours = Math.round(minutes / 60);
   if (hours < 24) {
-    return `${hours} hr ago`;
+    return t("recent.hoursAgo", { value: hours });
   }
   const days = Math.round(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  return t("recent.daysAgo", { count: days });
 }
 
 export default function RecentGames() {
+  const { t } = useTranslation();
   const [games, setGames] = useState<SavedGame[]>([]);
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function RecentGames() {
 
   return (
     <section className="w-full">
-      <h2 className="mb-3 text-lg font-semibold">Recent games</h2>
+      <h2 className="mb-3 text-lg font-semibold">{t("recent.title")}</h2>
       <div className="flex flex-col gap-3">
         {games.map((game) => {
           const puzzle = puzzleParser.parse(game.d);
@@ -77,33 +80,31 @@ export default function RecentGames() {
                 <div className="flex flex-col gap-1">
                   <div className="flex flex-wrap items-center gap-2 font-semibold">
                     <span className="text-xl text-primary">{OPERATION_SYMBOL[puzzle.op]}</span>
-                    <span>{OPERATION_LABEL[puzzle.op]}</span>
+                    <span>{t(`op.${puzzle.op}`)}</span>
                     <span className="badge badge-outline badge-sm">
                       {puzzle.start}–{puzzle.end}
                     </span>
                     <span className="badge badge-outline badge-sm">
-                      {puzzle.order === "rand" ? "Random" : "Sequential"}
+                      {t(`order.${puzzle.order}`)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-base-content/60">
                     {completed ? (
-                      <span className="badge badge-success badge-sm">Completed</span>
+                      <span className="badge badge-success badge-sm">{t("recent.completed")}</span>
                     ) : (
-                      <span>
-                        {filled}/{answerable} filled
-                      </span>
+                      <span>{t("recent.filled", { filled, answerable })}</span>
                     )}
                     <span>·</span>
-                    <span>{formatRelative(game.updatedAt)}</span>
+                    <span>{formatRelative(t, game.updatedAt)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Link href={`/play?d=${game.d}` as Route} className="btn btn-primary btn-sm">
-                    Resume
+                    {t("recent.resume")}
                   </Link>
                   <button
                     type="button"
-                    aria-label="Delete game"
+                    aria-label={t("recent.delete")}
                     className="btn btn-square btn-ghost btn-sm"
                     onClick={() => handleDelete(game.id)}
                   >

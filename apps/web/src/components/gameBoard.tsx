@@ -56,7 +56,15 @@ export default function GameBoard({
   onActiveCell,
 }: GameBoardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [committed, setCommitted] = useState<ReadonlySet<number>>(new Set());
+  const [committed, setCommitted] = useState<ReadonlySet<number>>(() => {
+    const initial = new Set<number>();
+    answers.forEach((value, index) => {
+      if (value.trim() !== "") {
+        initial.add(index);
+      }
+    });
+    return initial;
+  });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   function handleFocus(index: number, row: number, col: number) {

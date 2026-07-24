@@ -2,3 +2,11 @@
 @plugin "daisyui" {
   themes: synthwave --default;
 }
+
+@theme {
+  --font-sans: var(--font-mplus-rounded), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-mplus-rounded), ui-sans-serif, system-ui, sans-serif;
+}

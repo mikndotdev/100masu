@@ -4,8 +4,9 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { OPERATION_LABEL } from "@/lib/game";
+import LanguageSwitch from "@/components/languageSwitch";
 import { puzzleParser } from "@/lib/gameParams";
 
 const PrintWorksheet = dynamic(() => import("@/components/printWorksheet"), {
@@ -14,18 +15,17 @@ const PrintWorksheet = dynamic(() => import("@/components/printWorksheet"), {
 });
 
 function PrintPageContent() {
+  const { t } = useTranslation();
   const [puzzle] = useQueryState("d", puzzleParser);
   const [withAnswers, setWithAnswers] = useState(false);
 
   if (!puzzle) {
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
-        <h1 className="text-2xl font-bold">No worksheet to print</h1>
-        <p className="text-base-content/70">
-          This link has no valid puzzle data. Set up a grid first, then hit Print.
-        </p>
+        <h1 className="text-2xl font-bold">{t("print.noWorksheetTitle")}</h1>
+        <p className="text-base-content/70">{t("print.noWorksheetBody")}</p>
         <Link href="/" className="btn btn-primary">
-          Go to setup
+          {t("print.goToSetup")}
         </Link>
       </main>
     );
@@ -37,14 +37,15 @@ function PrintPageContent() {
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Printable worksheet</h1>
+          <h1 className="text-2xl font-bold">{t("print.title")}</h1>
           <p className="text-sm text-base-content/60">
-            {OPERATION_LABEL[puzzle.op]} · {puzzle.start}–{puzzle.end}
+            {t(`op.${puzzle.op}`)} · {puzzle.start}–{puzzle.end}
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <LanguageSwitch />
           <label className="label cursor-pointer gap-2">
-            <span className="label-text">Answer key</span>
+            <span className="label-text">{t("print.answerKey")}</span>
             <input
               type="checkbox"
               className="toggle toggle-primary"
@@ -53,7 +54,7 @@ function PrintPageContent() {
             />
           </label>
           <Link href="/" className="btn btn-outline">
-            Back to setup
+            {t("print.backToSetup")}
           </Link>
         </div>
       </header>
