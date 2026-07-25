@@ -8,6 +8,7 @@ const SERVICE = "captcha";
 const ACTION = "DescribeCaptchaResult";
 const VERSION = "2019-07-22";
 const ALGORITHM = "TC3-HMAC-SHA256";
+const CAPTCHA_PASSED = 1;
 
 function sha256Hex(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
@@ -80,15 +81,34 @@ export async function verifyCaptcha(
     });
 
     if (!response.ok) {
+      console.error(`captcha: HTTP ${response.status} from ${HOST}`);
       return false;
     }
 
     const result = (await response.json()) as {
-      Response?: { CaptchaCode?: number; Error?: { Code?: string } };
+      Response?: {
+        CaptchaCode?: number;
+        CaptchaMsg?: string;
+        Error?: { Code?: string; Message?: string };
+      };
     };
 
-    return result.Response?.CaptchaCode === 0;
-  } catch {
+    const error = result.Response?.Error;
+    if (error) {
+      console.error(`captcha: api error ${error.Code}: ${error.Message}`);
+      return false;
+    }
+
+    if (result.Response?.CaptchaCode !== CAPTCHA_PASSED) {
+      console.error(
+        `captcha: rejected (CaptchaCode=${result.Response?.CaptchaCode} ${result.Response?.CaptchaMsg})`,
+      );
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("captcha: request failed", error);
     return false;
   }
 }

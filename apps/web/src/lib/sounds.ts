@@ -6,6 +6,7 @@ export const SOUND_EFFECTS = {
   countdown: "https://cdn.mikn.dev/web/100masu/countdown.mp3",
   perfect: "https://cdn.mikn.dev/web/100masu/perfect.mp3",
   applaud: "https://cdn.mikn.dev/web/100masu/applaud.mp3",
+  join: "https://cdn.mikn.dev/web/100masu/join.mp3",
 } as const;
 
 export type SoundKey = keyof typeof SOUND_EFFECTS;
