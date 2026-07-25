@@ -5,7 +5,10 @@
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
     "build": "bun build --compile src/index.ts --outfile realtime",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "check-types": "tsc",
+    "test:e2e": "bun run tests/multiplayer.e2e.ts",
+    "test:e2e:cross": "bun run tests/crossInstance.e2e.ts"
   },
   "dependencies": {
     "@100masu/db": "workspace:*",
