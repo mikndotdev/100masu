@@ -2,6 +2,7 @@ FROM oven/bun:1.3.11 AS build
 WORKDIR /app
 
 ENV SKIP_ENV_VALIDATION=1
+ENV DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
 
 COPY . .
 RUN bun install --frozen-lockfile
