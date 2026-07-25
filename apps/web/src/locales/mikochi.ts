@@ -74,10 +74,10 @@ export const mikochi = {
     title: "やったね！",
   },
   result: {
-    title: "やったね！ 🎉",
+    title: "けっか",
     time: "じかん",
     share: "みんなにおしえる",
-    shareText: "ひゃくますけーさん ({{operation}}) を {{time}} でできたよ！",
+    shareText: "ひゃくますけーさん ({{operation}}) を {{time}} でできたよ！みんなもやってみてね！ https://100masu.mikn.dev",
     playAgain: "おなじもんだいでもういっかい！",
     noResult: "なにかおかしいよ？",
   },
