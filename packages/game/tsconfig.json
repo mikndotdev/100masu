@@ -1,0 +1,3 @@
+{
+  "extends": "@100masu/config/tsconfig.base.json"
+}

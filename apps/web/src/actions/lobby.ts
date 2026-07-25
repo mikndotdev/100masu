@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { verifyCaptcha } from "@/lib/captcha";
-import { generateHeaders } from "@/lib/game";
+import { generateHeaders, GRID_SIZE } from "@/lib/game";
 import {
   CHECK_TO_DB,
   generateInviteCode,
@@ -24,6 +24,8 @@ import { actionClient } from "@/lib/safe-action";
 const PLAYER_COOKIE = "mp-player";
 const LOBBY_COOKIE = "mp-lobby";
 const COOKIE_MAX_AGE = 60 * 60 * 6;
+const LOBBY_TTL_MS = 1000 * 60 * 60 * 6;
+const INTRO_MS = 5400;
 
 async function clientIp(): Promise<string> {
   const headerList = await headers();
@@ -91,9 +93,10 @@ export const createLobby = actionClient
       data: {
         InviteCode: inviteCode,
         MaxPlayers: MAX_PLAYERS,
+        ExpiresAt: new Date(Date.now() + LOBBY_TTL_MS),
         Op: OPERATION_TO_DB[parsedInput.op],
         StartNumber: parsedInput.start,
-        EndNumber: parsedInput.end,
+        EndNumber: parsedInput.start + GRID_SIZE - 1,
         Order: ORDER_TO_DB[parsedInput.order],
         Check: CHECK_TO_DB[parsedInput.check],
         Players: {
@@ -189,7 +192,7 @@ export const startGame = actionClient
       where: { Id: lobby.Id },
       data: {
         Status: "IN_PROGRESS",
-        StartedAt: new Date(),
+        StartedAt: new Date(Date.now() + INTRO_MS),
         TopHeaders: board.top,
         LeftHeaders: board.left,
         Players: {

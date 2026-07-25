@@ -78,6 +78,7 @@ model Player {
 
   JoinedAt   DateTime  @default(now())
   LastSeenAt DateTime  @updatedAt
+  LastPingAt DateTime?
   FinishedAt DateTime?
 
   @@index([LobbyId])

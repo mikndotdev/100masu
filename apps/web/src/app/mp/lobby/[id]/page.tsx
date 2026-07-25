@@ -2,6 +2,8 @@
 
 import { Copy, Crown, Users } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import type { Route } from "next";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 import QRCode from "react-qr-code";
@@ -25,7 +27,13 @@ export default function LobbyPage() {
   const { execute, isPending } = useAction(startGame, {
     onSuccess: ({ data }) => {
       if (data && !data.ok) {
-        toast.error(t(`mp.${data.error === "tooFewPlayers" ? "needTwoPlayers" : data.error}`));
+        const messages = {
+          tooFewPlayers: "mp.needTwoPlayers",
+          notHost: "mp.notHost",
+          notFound: "mp.lobbyNotFound",
+          closed: "mp.lobbyClosed",
+        } as const;
+        toast.error(t(messages[data.error]));
       }
     },
     onError: () => toast.error(t("mp.createFailed")),
@@ -34,6 +42,8 @@ export default function LobbyPage() {
   const players = snapshot?.players ?? [];
   const code = snapshot?.inviteCode ?? "";
   const canStart = players.length >= MIN_PLAYERS && !isPending;
+  const inProgress = snapshot?.status === "IN_PROGRESS" || snapshot?.status === "COMPLETED";
+  const hostId = players.find((player) => player.isHost)?.id ?? null;
 
   async function copyLink() {
     if (!code) {
@@ -96,24 +106,39 @@ export default function LobbyPage() {
           </ul>
 
           <div className="card-actions flex-col gap-3">
-            <button
-              type="button"
-              className="btn btn-secondary btn-lg w-full"
-              onClick={() => dialogRef.current?.showModal()}
-            >
-              {t("mp.invite")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary btn-lg w-full"
-              disabled={!canStart}
-              onClick={() => execute({ lobbyId })}
-            >
-              {t("mp.startGame")}
-            </button>
-            {players.length < MIN_PLAYERS ? (
-              <p className="text-center text-sm text-base-content/60">{t("mp.needTwoPlayers")}</p>
-            ) : null}
+            {inProgress ? (
+              hostId ? (
+                <Link
+                  href={`/mp/play/${hostId}` as Route}
+                  className="btn btn-primary btn-lg w-full"
+                >
+                  {t("mp.backToGame")}
+                </Link>
+              ) : null
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-lg w-full"
+                  onClick={() => dialogRef.current?.showModal()}
+                >
+                  {t("mp.invite")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-lg w-full"
+                  disabled={!canStart}
+                  onClick={() => execute({ lobbyId })}
+                >
+                  {t("mp.startGame")}
+                </button>
+                {players.length < MIN_PLAYERS ? (
+                  <p className="text-center text-sm text-base-content/60">
+                    {t("mp.needTwoPlayers")}
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
         </div>
       </div>

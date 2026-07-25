@@ -8,9 +8,10 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.4.2",
     "@100masu/db": "workspace:*",
     "@100masu/env": "workspace:*",
+    "@100masu/game": "workspace:*",
+    "@elysiajs/cors": "^1.4.2",
     "elysia": "1"
   },
   "devDependencies": {

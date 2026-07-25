@@ -23,6 +23,7 @@
       "dependencies": {
         "@100masu/db": "workspace:*",
         "@100masu/env": "workspace:*",
+        "@100masu/game": "workspace:*",
         "@elysiajs/cors": "^1.4.2",
         "elysia": "1",
       },
@@ -37,6 +38,7 @@
       "dependencies": {
         "@100masu/db": "workspace:*",
         "@100masu/env": "workspace:*",
+        "@100masu/game": "workspace:*",
         "@icons-pack/react-simple-icons": "^13.13.0",
         "@prisma/client": "catalog:",
         "@react-pdf/renderer": "^4.5.1",
@@ -112,6 +114,14 @@
         "typescript": "catalog:",
       },
     },
+    "packages/game": {
+      "name": "@100masu/game",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@100masu/config": "workspace:*",
+        "typescript": "catalog:",
+      },
+    },
   },
   "catalog": {
     "@prisma/client": "^7.8.0",
@@ -134,6 +144,8 @@
     "@100masu/db": ["@100masu/db@workspace:packages/db"],
 
     "@100masu/env": ["@100masu/env@workspace:packages/env"],
+
+    "@100masu/game": ["@100masu/game@workspace:packages/game"],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
