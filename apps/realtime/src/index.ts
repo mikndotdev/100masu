@@ -84,6 +84,7 @@ async function broadcast(lobbyId: string) {
 
 const app = new Elysia()
   .use(cors())
+  .get("/", () => ({ hello: "Bun👋" }))
   .ws("/channels/lobby", {
     query: t.Object({ id: t.Optional(t.String()), player: t.Optional(t.String()) }),
     async open(ws) {

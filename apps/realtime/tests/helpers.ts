@@ -127,7 +127,7 @@ export function fillBoard(socket: TestSocket) {
 }
 
 export function lastProgressFor(socket: TestSocket, playerId: string) {
-  return socket.msgs
-    .filter((m) => m.type === "progress" && m.playerId === playerId)
-    .at(-1) as { cells: string; correct: number; filled: number } | undefined;
+  return socket.msgs.filter((m) => m.type === "progress" && m.playerId === playerId).at(-1) as
+    | { cells: string; correct: number; filled: number }
+    | undefined;
 }
