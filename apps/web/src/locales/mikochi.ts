@@ -23,6 +23,9 @@ export const mikochi = {
     answerChecking: "こたえあわせ",
     checkInput: "いれたらすぐ",
     checkEnd: "ぜんぶおわってから",
+    allowLateJoin: "とちゅうからでもはいれる",
+    allowLateJoinHint:
+      "げーむがはじまったあとでも、こーどがあればはいれるよ！じかんはみんなおなじだから、おそくはいるとちょっとたいへんかも！",
     play: "やってみる！",
     print: "いんさつする",
     multiplayer: "みんなでやる！",
@@ -86,6 +89,9 @@ export const mikochi = {
     joinFailed: "Could not join. Please check the code and try again.",
     checking: "Checking that code…",
     tryAnother: "Try another code",
+    inProgress: "いまやってるよ！",
+    inProgressNote:
+      "このげーむはもうはじまってるよ！すぐにけいさんのがめんにいくからね。じかんはもうすすんでるよ！",
   },
   recent: {
     title: "いままでのげーむ",

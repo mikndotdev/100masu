@@ -22,6 +22,9 @@ export const en = {
     answerChecking: "Answer checking",
     checkInput: "On input",
     checkEnd: "At the end",
+    allowLateJoin: "Allow joining after start",
+    allowLateJoinHint:
+      "Players can still join with the code once the game is running. They race the same clock, so they start behind.",
     play: "Play",
     print: "Print",
     multiplayer: "Multiplayer",
@@ -85,6 +88,9 @@ export const en = {
     joinFailed: "Could not join. Please check the code and try again.",
     checking: "Checking that code…",
     tryAnother: "Try another code",
+    inProgress: "In progress",
+    inProgressNote:
+      "This game has already started — you'll go straight to the board, and the clock is already running.",
   },
   recent: {
     title: "Recent games",

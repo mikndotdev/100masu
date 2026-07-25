@@ -18,6 +18,7 @@ export default function InviteJoinPage() {
   const code = normalizeInviteCode(params.code ?? "");
   const [name, setName] = useState("");
   const [invalid, setInvalid] = useState<string | null>(null);
+  const [inProgress, setInProgress] = useState(false);
   const [checked, setChecked] = useState(false);
   const checkedOnce = useRef(false);
 
@@ -25,6 +26,9 @@ export default function InviteJoinPage() {
     onSuccess: ({ data }) => {
       if (data && !data.ok) {
         setInvalid(inviteErrorKey(data.error));
+      }
+      if (data?.ok) {
+        setInProgress(data.inProgress);
       }
       setChecked(true);
     },
@@ -90,6 +94,16 @@ export default function InviteJoinPage() {
 
       <div className="card w-full bg-base-200 shadow-xl">
         <div className="card-body gap-6">
+          {inProgress ? (
+            <div className="rounded-box bg-warning/15 px-4 py-3 text-left">
+              <span className="badge badge-warning badge-sm gap-1 font-semibold">
+                <span className="inline-block size-1.5 rounded-full bg-current" />
+                {t("invite.inProgress")}
+              </span>
+              <p className="mt-2 text-sm text-base-content/70">{t("invite.inProgressNote")}</p>
+            </div>
+          ) : null}
+
           <label className="form-control">
             <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
             <input

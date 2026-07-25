@@ -53,10 +53,11 @@ model Lobby {
   TopHeaders  Int[]
   LeftHeaders Int[]
 
-  MaxPlayers Int       @default(10)
-  StartedAt  DateTime?
-  FinishedAt DateTime?
-  ExpiresAt  DateTime?
+  MaxPlayers    Int       @default(10)
+  AllowLateJoin Boolean   @default(false)
+  StartedAt     DateTime?
+  FinishedAt    DateTime?
+  ExpiresAt     DateTime?
 
   Players Player[]
 

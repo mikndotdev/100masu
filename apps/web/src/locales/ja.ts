@@ -22,6 +22,9 @@ export const ja = {
     answerChecking: "答え合わせ",
     checkInput: "入力直後",
     checkEnd: "全て入れてから",
+    allowLateJoin: "途中参加を許可",
+    allowLateJoinHint:
+      "ゲームが始まった後でも、招待コードがあれば参加できます。タイマーは全員共通なので、遅く入るとその分不利になります。",
     play: "やってみる！",
     print: "印刷する",
     multiplayer: "マルチプレイ",
@@ -85,6 +88,9 @@ export const ja = {
     joinFailed: "ゲームに参加できませんでした。もう一度お試しください。",
     checking: "Checking that code…",
     tryAnother: "Try another code",
+    inProgress: "進行中",
+    inProgressNote:
+      "このゲームはもう始まっています。すぐに計算画面に移ります。タイマーはすでに動いています。",
   },
   recent: {
     title: "過去のゲーム",

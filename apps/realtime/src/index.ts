@@ -51,6 +51,7 @@ async function lobbySnapshot(lobbyId: string) {
     lobbyId: lobby.Id,
     inviteCode: lobby.InviteCode,
     status: lobby.Status,
+    allowLateJoin: lobby.AllowLateJoin,
     startedAt: lobby.StartedAt ? lobby.StartedAt.getTime() : null,
     op: OPERATION_FROM_DB[lobby.Op],
     check: CHECK_FROM_DB[lobby.Check],

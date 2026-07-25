@@ -1,3 +1,3 @@
 - No comments on all code unless specifically requested.
 - When doing database migrations, stop after editing the schema, and let the user run the migration. Don't run it yourself.
-- When adding strings to i18n, Only write English, then copy the English strings to the Japanese i18n file, don't translate yourself. Notify the user when strings are added.
+- When adding strings to i18n, Do the translation in the style of the other strings. "mikochi" should be in friendly-fun hiragana.

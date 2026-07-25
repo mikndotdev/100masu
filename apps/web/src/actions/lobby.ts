@@ -57,6 +57,18 @@ async function notifyLobby(lobbyId: string) {
   }
 }
 
+type LobbyStatus = "OPEN" | "IN_PROGRESS" | "COMPLETED";
+
+function joinGate(status: LobbyStatus, allowLateJoin: boolean): "closed" | null {
+  if (status === "OPEN") {
+    return null;
+  }
+  if (status === "IN_PROGRESS" && allowLateJoin) {
+    return null;
+  }
+  return "closed";
+}
+
 async function createUniqueInviteCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = generateInviteCode();
@@ -79,6 +91,7 @@ export const createLobby = actionClient
       end: z.number().int(),
       order: z.enum(["seq", "rand"]),
       check: z.enum(["input", "end"]),
+      allowLateJoin: z.boolean(),
     }),
   )
   .action(async ({ parsedInput }) => {
@@ -93,6 +106,7 @@ export const createLobby = actionClient
       data: {
         InviteCode: inviteCode,
         MaxPlayers: MAX_PLAYERS,
+        AllowLateJoin: parsedInput.allowLateJoin,
         ExpiresAt: new Date(Date.now() + LOBBY_TTL_MS),
         Op: OPERATION_TO_DB[parsedInput.op],
         StartNumber: parsedInput.start,
@@ -123,19 +137,25 @@ export const lookupInvite = actionClient
   .action(async ({ parsedInput }) => {
     const lobby = await prisma.lobby.findUnique({
       where: { InviteCode: parsedInput.code },
-      select: { Status: true, MaxPlayers: true, _count: { select: { Players: true } } },
+      select: {
+        Status: true,
+        MaxPlayers: true,
+        AllowLateJoin: true,
+        _count: { select: { Players: true } },
+      },
     });
 
     if (!lobby) {
       return { ok: false as const, error: "notFound" as const };
     }
-    if (lobby.Status !== "OPEN") {
-      return { ok: false as const, error: "closed" as const };
+    const gate = joinGate(lobby.Status, lobby.AllowLateJoin);
+    if (gate) {
+      return { ok: false as const, error: gate };
     }
     if (lobby._count.Players >= lobby.MaxPlayers) {
       return { ok: false as const, error: "full" as const };
     }
-    return { ok: true as const };
+    return { ok: true as const, inProgress: lobby.Status === "IN_PROGRESS" };
   });
 
 export const joinLobby = actionClient
@@ -154,8 +174,9 @@ export const joinLobby = actionClient
     if (!lobby) {
       return { ok: false as const, error: "notFound" as const };
     }
-    if (lobby.Status !== "OPEN") {
-      return { ok: false as const, error: "closed" as const };
+    const gate = joinGate(lobby.Status, lobby.AllowLateJoin);
+    if (gate) {
+      return { ok: false as const, error: gate };
     }
     if (lobby.Players.length >= lobby.MaxPlayers) {
       return { ok: false as const, error: "full" as const };
@@ -165,6 +186,7 @@ export const joinLobby = actionClient
       data: {
         LobbyId: lobby.Id,
         Name: parsedInput.name,
+        Status: lobby.Status === "IN_PROGRESS" ? "PLAYING" : "JOINED",
       },
     });
 

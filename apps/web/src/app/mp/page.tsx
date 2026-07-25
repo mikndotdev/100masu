@@ -19,6 +19,7 @@ function MultiplayerSetupContent() {
   const [settings, setSettings] = useQueryStates(settingsParsers);
   const [captcha, setCaptcha] = useState<{ ticket: string; randstr: string } | null>(null);
   const [name, setName] = useState("");
+  const [allowLateJoin, setAllowLateJoin] = useState(false);
 
   const { execute, isPending } = useAction(createLobby, {
     onSuccess: ({ data }) => {
@@ -44,6 +45,7 @@ function MultiplayerSetupContent() {
       end: settings.end,
       order: settings.order,
       check: settings.check,
+      allowLateJoin,
     });
   }
 
@@ -75,6 +77,19 @@ function MultiplayerSetupContent() {
           </label>
 
           <SettingsForm settings={settings} onChange={(next) => void setSettings(next)} />
+
+          <label className="flex cursor-pointer items-start justify-between gap-4">
+            <span className="flex flex-col">
+              <span className="font-semibold">{t("setup.allowLateJoin")}</span>
+              <span className="text-sm text-base-content/60">{t("setup.allowLateJoinHint")}</span>
+            </span>
+            <input
+              type="checkbox"
+              className="toggle toggle-primary shrink-0"
+              checked={allowLateJoin}
+              onChange={(event) => setAllowLateJoin(event.target.checked)}
+            />
+          </label>
 
           <div className="divider my-0" />
 

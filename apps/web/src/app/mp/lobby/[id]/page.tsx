@@ -44,6 +44,7 @@ export default function LobbyPage() {
   const canStart = players.length >= MIN_PLAYERS && !isPending;
   const inProgress = snapshot?.status === "IN_PROGRESS" || snapshot?.status === "COMPLETED";
   const hostId = players.find((player) => player.isHost)?.id ?? null;
+  const stillInvitable = snapshot?.status === "IN_PROGRESS" && snapshot.allowLateJoin;
 
   async function copyLink() {
     if (!code) {
@@ -107,14 +108,25 @@ export default function LobbyPage() {
 
           <div className="card-actions flex-col gap-3">
             {inProgress ? (
-              hostId ? (
-                <Link
-                  href={`/mp/play/${hostId}` as Route}
-                  className="btn btn-primary btn-lg w-full"
-                >
-                  {t("mp.backToGame")}
-                </Link>
-              ) : null
+              <>
+                {stillInvitable ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-lg w-full"
+                    onClick={() => dialogRef.current?.showModal()}
+                  >
+                    {t("mp.invite")}
+                  </button>
+                ) : null}
+                {hostId ? (
+                  <Link
+                    href={`/mp/play/${hostId}` as Route}
+                    className="btn btn-primary btn-lg w-full"
+                  >
+                    {t("mp.backToGame")}
+                  </Link>
+                ) : null}
+              </>
             ) : (
               <>
                 <button

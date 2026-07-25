@@ -65,6 +65,31 @@ function answersOf(value: unknown): string[] {
   );
 }
 
+function committedFromAnswers(answers: string[]): Set<number> {
+  return new Set(answers.flatMap((value, index) => (value.trim() === "" ? [] : [index])));
+}
+
+function toPlayerState(row: {
+  Id: string;
+  Name: string;
+  Answers: unknown;
+  FilledCount: number;
+  CorrectCount: number;
+  FinishedAt: Date | null;
+}): PlayerState {
+  const answers = answersOf(row.Answers);
+  return {
+    id: row.Id,
+    name: row.Name,
+    answers,
+    committed: committedFromAnswers(answers),
+    filled: row.FilledCount,
+    correct: row.CorrectCount,
+    finishedAt: row.FinishedAt ? row.FinishedAt.getTime() : null,
+    placement: null,
+  };
+}
+
 function markPresence(playerId: string) {
   const last = presenceStamps.get(playerId) ?? 0;
   const now = Date.now();
@@ -100,26 +125,7 @@ async function loadLobbyState(lobbyId: string): Promise<LobbyState | null> {
     op: OPERATION_FROM_DB[lobby.Op],
     check: CHECK_FROM_DB[lobby.Check],
     startedAt: lobby.StartedAt.getTime(),
-    players: new Map(
-      lobby.Players.map((player) => {
-        const answers = answersOf(player.Answers);
-        return [
-          player.Id,
-          {
-            id: player.Id,
-            name: player.Name,
-            answers,
-            committed: new Set(
-              answers.flatMap((value, index) => (value.trim() === "" ? [] : [index])),
-            ),
-            filled: player.FilledCount,
-            correct: player.CorrectCount,
-            finishedAt: player.FinishedAt ? player.FinishedAt.getTime() : null,
-            placement: null,
-          },
-        ];
-      }),
-    ),
+    players: new Map(lobby.Players.map((player) => [player.Id, toPlayerState(player)])),
   };
 
   [...state.players.values()]
@@ -131,6 +137,30 @@ async function loadLobbyState(lobbyId: string): Promise<LobbyState | null> {
 
   lobbies.set(lobbyId, state);
   return state;
+}
+
+async function ensurePlayer(
+  lobby: LobbyState,
+  playerId: string,
+): Promise<{ player: PlayerState; hydrated: boolean } | null> {
+  const cached = lobby.players.get(playerId);
+  if (cached) {
+    return { player: cached, hydrated: false };
+  }
+
+  const row = await prisma.player.findUnique({ where: { Id: playerId } });
+  if (!row || row.LobbyId !== lobby.lobbyId) {
+    return null;
+  }
+
+  const raced = lobby.players.get(playerId);
+  if (raced) {
+    return { player: raced, hydrated: false };
+  }
+
+  const player = toPlayerState(row);
+  lobby.players.set(playerId, player);
+  return { player, hydrated: true };
 }
 
 function revealFor(lobby: LobbyState, player: PlayerState): boolean {
@@ -250,13 +280,25 @@ export function fanOutGameEvent(event: GameEvent) {
     return;
   }
 
-  const player = lobbies.get(event.lobbyId)?.players.get(event.playerId);
+  const lobby = lobbies.get(event.lobbyId);
+  const player = lobby?.players.get(event.playerId);
   if (player) {
     player.answers = event.answers;
     player.filled = event.filled;
     player.correct = event.correct;
     player.finishedAt = event.finishedAt;
     player.placement = event.placement;
+  } else if (lobby) {
+    lobby.players.set(event.playerId, {
+      id: event.playerId,
+      name: event.name,
+      answers: event.answers,
+      committed: committedFromAnswers(event.answers),
+      filled: event.filled,
+      correct: event.correct,
+      finishedAt: event.finishedAt,
+      placement: event.placement,
+    });
   }
 
   deliver(event);
@@ -350,11 +392,17 @@ export async function openPlaySocket(socket: GameSocket, playerId: string) {
   }
 
   const lobby = await loadLobbyState(player.LobbyId);
-  const self = lobby?.players.get(playerId);
-  if (!lobby || !self) {
+  if (!lobby) {
     socket.close();
     return;
   }
+
+  const entry = await ensurePlayer(lobby, playerId);
+  if (!entry) {
+    socket.close();
+    return;
+  }
+  const self = entry.player;
 
   if (closedSockets.has(socket.id)) {
     closedSockets.delete(socket.id);
@@ -390,6 +438,10 @@ export async function openPlaySocket(socket: GameSocket, playerId: string) {
       placement: self.placement ?? 1,
       timeMs: lobby.startedAt !== null ? self.finishedAt - lobby.startedAt : 0,
     });
+  }
+
+  if (entry.hydrated) {
+    announce(lobby, self);
   }
 }
 
