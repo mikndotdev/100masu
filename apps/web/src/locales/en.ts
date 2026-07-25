@@ -76,7 +76,8 @@ export const en = {
     title: "Result",
     time: "Time",
     share: "Share",
-    shareText: "I finished a 100-masu ({{operation}}) in {{time}}! Can you beat me? https://100masu.mikn.dev",
+    shareText:
+      "I finished a 100-masu ({{operation}}) in {{time}}! Can you beat me? https://100masu.mikn.dev",
     playAgain: "Retry this puzzle",
     noResult: "No result to show",
   },

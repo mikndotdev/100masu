@@ -76,7 +76,8 @@ export const ja = {
     title: "結果",
     time: "時間",
     share: "共有する",
-    shareText: "百マス計算　({{operation}}) を {{time}}　にできた！みんなもやってみてね！ https://100masu.mikn.dev",
+    shareText:
+      "百マス計算　({{operation}}) を {{time}}　にできた！みんなもやってみてね！ https://100masu.mikn.dev",
     playAgain: "同じ問題でもう一回！",
     noResult: "無効なリンクです。",
   },

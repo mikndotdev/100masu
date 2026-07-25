@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Gloria_Hallelujah, M_PLUS_Rounded_1c } from "next/font/google";
 import localFont from "next/font/local";
 import Providers from "@/components/providers";
+import Script from "next/script";
 
 import "../index.css";
 
@@ -45,6 +46,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
+      <head>
+        <Script
+          defer
+          src="https://cdn.mikn.dev/analytics/script"
+          data-website-id="34d8778e-f0e2-45b1-aff5-05a818d24326"
+        />
+      </head>
       <body
         className={`${mPlusRounded.variable} ${geistMono.variable} ${gloriaHallelujah.variable} ${dseg.variable} antialiased`}
       >
