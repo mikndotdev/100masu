@@ -9,6 +9,7 @@ export const env = createEnv({
     CAPTCHA_SECRET: z.string().min(1),
     TENCENTCLOUD_SECRET_ID: z.string().min(1),
     TENCENTCLOUD_SECRET_KEY: z.string().min(1),
+    CRON_SECRET: z.string().min(1).optional(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
   runtimeEnv: process.env,

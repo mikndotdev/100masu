@@ -1,38 +1,79 @@
 "use client";
 
 import { useAction } from "next-safe-action/hooks";
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { joinLobby } from "@/actions/lobby";
+import { joinLobby, lookupInvite } from "@/actions/lobby";
 import LanguageSwitch from "@/components/languageSwitch";
 import SoundToggle from "@/components/soundToggle";
-import { MAX_NAME_LENGTH, normalizeInviteCode } from "@/lib/lobby";
+import { inviteErrorKey, MAX_NAME_LENGTH, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteJoinPage() {
   const { t } = useTranslation();
   const params = useParams<{ code: string }>();
   const code = normalizeInviteCode(params.code ?? "");
   const [name, setName] = useState("");
+  const [invalid, setInvalid] = useState<string | null>(null);
+  const [checked, setChecked] = useState(false);
+  const checkedOnce = useRef(false);
+
+  const lookup = useAction(lookupInvite, {
+    onSuccess: ({ data }) => {
+      if (data && !data.ok) {
+        setInvalid(inviteErrorKey(data.error));
+      }
+      setChecked(true);
+    },
+    onError: () => {
+      setInvalid("invite.joinFailed");
+      setChecked(true);
+    },
+  });
+  const runLookup = lookup.execute;
+
+  useEffect(() => {
+    if (checkedOnce.current || code === "") {
+      return;
+    }
+    checkedOnce.current = true;
+    runLookup({ code });
+  }, [code, runLookup]);
 
   const { execute, isPending } = useAction(joinLobby, {
     onSuccess: ({ data }) => {
       if (data && !data.ok) {
-        const key =
-          data.error === "notFound"
-            ? "mp.lobbyNotFound"
-            : data.error === "closed"
-              ? "mp.lobbyClosed"
-              : "mp.lobbyFull";
-        toast.error(t(key));
+        toast.error(t(inviteErrorKey(data.error)));
       }
     },
     onError: () => toast.error(t("invite.joinFailed")),
   });
 
   const canJoin = name.trim() !== "" && !isPending;
+
+  if (!checked) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
+        <span className="loading loading-dots loading-lg" />
+        <p className="text-base-content/60">{t("invite.checking")}</p>
+      </main>
+    );
+  }
+
+  if (invalid) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
+        <h1 className="text-2xl font-bold">{t(invalid)}</h1>
+        <p className="font-mono text-xl tracking-[0.3em] text-base-content/50">{code}</p>
+        <Link href="/invite" className="btn btn-primary">
+          {t("invite.tryAnother")}
+        </Link>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-8 px-4 py-12">

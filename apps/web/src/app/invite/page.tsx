@@ -1,27 +1,42 @@
 "use client";
 
+import { useAction } from "next-safe-action/hooks";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { lookupInvite } from "@/actions/lobby";
 import LanguageSwitch from "@/components/languageSwitch";
 import SoundToggle from "@/components/soundToggle";
-import { INVITE_CODE_LENGTH, normalizeInviteCode } from "@/lib/lobby";
+import { INVITE_CODE_LENGTH, inviteErrorKey, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteCodePage() {
   const { t } = useTranslation();
   const router = useRouter();
   const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const normalized = normalizeInviteCode(code);
   const valid = normalized.length === INVITE_CODE_LENGTH && /^[A-Z0-9]+$/.test(normalized);
 
+  const { execute, isPending } = useAction(lookupInvite, {
+    onSuccess: ({ data }) => {
+      if (data?.ok) {
+        router.push(`/invite/${normalized}` as Route);
+        return;
+      }
+      setError(data ? inviteErrorKey(data.error) : "invite.joinFailed");
+    },
+    onError: () => setError("invite.joinFailed"),
+  });
+
   function submit() {
-    if (!valid) {
+    if (!valid || isPending) {
       return;
     }
-    router.push(`/invite/${normalized}` as Route);
+    setError(null);
+    execute({ code: normalized });
   }
 
   return (
@@ -47,24 +62,30 @@ export default function InviteCodePage() {
               autoCapitalize="characters"
               maxLength={INVITE_CODE_LENGTH}
               placeholder={t("invite.codePlaceholder")}
-              className="input input-bordered w-full text-center font-mono text-3xl tracking-[0.3em] uppercase"
+              className={`input input-bordered w-full text-center font-mono text-3xl tracking-[0.3em] uppercase ${
+                error ? "input-error" : ""
+              }`}
               value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
+              onChange={(event) => {
+                setCode(event.target.value.toUpperCase());
+                setError(null);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   submit();
                 }
               }}
             />
+            {error ? <span className="mt-2 text-sm text-error">{t(error)}</span> : null}
           </label>
 
           <button
             type="button"
             className="btn btn-primary btn-lg w-full"
-            disabled={!valid}
+            disabled={!valid || isPending}
             onClick={submit}
           >
-            {t("invite.continue")}
+            {isPending ? <span className="loading loading-spinner" /> : t("invite.continue")}
           </button>
         </div>
       </div>

@@ -20,6 +20,7 @@ type PlayerState = {
   id: string;
   name: string;
   answers: string[];
+  committed: Set<number>;
   filled: number;
   correct: number;
   finishedAt: number | null;
@@ -100,18 +101,24 @@ async function loadLobbyState(lobbyId: string): Promise<LobbyState | null> {
     check: CHECK_FROM_DB[lobby.Check],
     startedAt: lobby.StartedAt.getTime(),
     players: new Map(
-      lobby.Players.map((player) => [
-        player.Id,
-        {
-          id: player.Id,
-          name: player.Name,
-          answers: answersOf(player.Answers),
-          filled: player.FilledCount,
-          correct: player.CorrectCount,
-          finishedAt: player.FinishedAt ? player.FinishedAt.getTime() : null,
-          placement: null,
-        },
-      ]),
+      lobby.Players.map((player) => {
+        const answers = answersOf(player.Answers);
+        return [
+          player.Id,
+          {
+            id: player.Id,
+            name: player.Name,
+            answers,
+            committed: new Set(
+              answers.flatMap((value, index) => (value.trim() === "" ? [] : [index])),
+            ),
+            filled: player.FilledCount,
+            correct: player.CorrectCount,
+            finishedAt: player.FinishedAt ? player.FinishedAt.getTime() : null,
+            placement: null,
+          },
+        ];
+      }),
     ),
   };
 
@@ -130,11 +137,24 @@ function revealFor(lobby: LobbyState, player: PlayerState): boolean {
   return lobby.check === "input" || player.finishedAt !== null;
 }
 
+// A half-typed number would otherwise flash as incorrect on opponents' grids, so a
+// cell only shows its verdict once the player has moved on from it. Finishing
+// reveals everything.
+function committedFor(player: PlayerState): ReadonlySet<number> | undefined {
+  return player.finishedAt !== null ? undefined : player.committed;
+}
+
 function progressOf(lobby: LobbyState, player: PlayerState) {
   return {
     playerId: player.id,
     name: player.name,
-    cells: buildCellStates(lobby.board, lobby.op, player.answers, revealFor(lobby, player)),
+    cells: buildCellStates(
+      lobby.board,
+      lobby.op,
+      player.answers,
+      revealFor(lobby, player),
+      committedFor(player),
+    ),
     filled: player.filled,
     correct: player.correct,
     finishedAt: player.finishedAt,
@@ -248,7 +268,13 @@ function buildEvent(lobby: LobbyState, player: PlayerState): GameEvent {
     lobbyId: lobby.lobbyId,
     playerId: player.id,
     name: player.name,
-    cells: buildCellStates(lobby.board, lobby.op, player.answers, revealFor(lobby, player)),
+    cells: buildCellStates(
+      lobby.board,
+      lobby.op,
+      player.answers,
+      revealFor(lobby, player),
+      committedFor(player),
+    ),
     answers: [...player.answers],
     filled: player.filled,
     correct: player.correct,
@@ -393,6 +419,7 @@ export async function handlePlayMessage(
       return;
     }
     player.answers[index] = typeof body.value === "string" ? body.value.slice(0, 12) : "";
+    player.committed.delete(index);
 
     const progress = countProgress(lobby.board, lobby.op, player.answers);
     player.filled = progress.filled;
@@ -403,6 +430,19 @@ export async function handlePlayMessage(
     } else {
       scheduleWrite(bound.lobbyId, bound.playerId);
     }
+    announce(lobby, player);
+    return;
+  }
+
+  if (body.type === "commit") {
+    const index = body.index;
+    if (typeof index !== "number" || !Number.isInteger(index) || index < 0 || index >= CELL_COUNT) {
+      return;
+    }
+    if ((player.answers[index] ?? "").trim() === "" || player.committed.has(index)) {
+      return;
+    }
+    player.committed.add(index);
     announce(lobby, player);
     return;
   }

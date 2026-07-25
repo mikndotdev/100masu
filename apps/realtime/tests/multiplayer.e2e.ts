@@ -34,7 +34,9 @@ async function instantMode() {
       "instant: receives game snapshot with board",
     );
 
+    // The real client commits on blur; without that a cell stays neutral by design.
     a.ws.send(JSON.stringify({ type: "cell", index: 0, value: correctFor(0) }));
+    a.ws.send(JSON.stringify({ type: "commit", index: 0 }));
     await wait(500);
 
     const progress = lastProgressFor(b, alice.Id);
@@ -171,6 +173,7 @@ async function regressions() {
     // The Redis echo must not revert rapid consecutive keystrokes.
     for (let index = 0; index < 12; index++) {
       a.ws.send(JSON.stringify({ type: "cell", index, value: correctFor(index) }));
+      a.ws.send(JSON.stringify({ type: "commit", index }));
     }
     await wait(1500);
     const progress = lastProgressFor(b, alice.Id);
@@ -212,8 +215,65 @@ async function regressions() {
   }
 }
 
+// A half-typed number must not be judged on opponents' grids until the player
+// moves on from the cell — otherwise "1" of "12" flashes red.
+async function commitMasking() {
+  const seeded = await seedLobby("INPUT");
+  const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
+
+  try {
+    const a = openSocket(BASE, "/channels/play", alice.Id);
+    const b = openSocket(BASE, "/channels/play", bob.Id);
+    await a.ready;
+    await b.ready;
+    await wait(400);
+
+    const index = [...Array(CELL_TOTAL).keys()].find((i) => correctFor(i).length > 1);
+    if (index === undefined) {
+      results.check(false, "commit: expected at least one multi-digit answer on the board");
+      return;
+    }
+    const full = correctFor(index);
+
+    a.ws.send(JSON.stringify({ type: "cell", index, value: full.slice(0, 1) }));
+    await wait(600);
+    results.check(
+      lastProgressFor(b, alice.Id)?.cells[index] === "1",
+      "commit: a half-typed number reads as filled, not incorrect",
+    );
+
+    a.ws.send(JSON.stringify({ type: "cell", index, value: full }));
+    await wait(500);
+    results.check(
+      lastProgressFor(b, alice.Id)?.cells[index] === "1",
+      "commit: stays neutral while the cell is still uncommitted",
+    );
+
+    a.ws.send(JSON.stringify({ type: "commit", index }));
+    await wait(600);
+    results.check(
+      lastProgressFor(b, alice.Id)?.cells[index] === "2",
+      "commit: verdict appears once the cell is committed",
+    );
+
+    // Re-editing a committed cell hides the verdict again.
+    a.ws.send(JSON.stringify({ type: "cell", index, value: full.slice(0, 1) }));
+    await wait(600);
+    results.check(
+      lastProgressFor(b, alice.Id)?.cells[index] === "1",
+      "commit: re-editing a committed cell hides its verdict again",
+    );
+
+    a.ws.close();
+    b.ws.close();
+  } finally {
+    await seeded.cleanup();
+  }
+}
+
 await instantMode();
 await endMode();
 await regressions();
+await commitMasking();
 
 process.exit(results.report() > 0 ? 1 : 0);

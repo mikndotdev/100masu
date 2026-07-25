@@ -17,6 +17,7 @@ import { useSoundEffect } from "@/components/soundProvider";
 import SoundToggle from "@/components/soundToggle";
 import Stopwatch from "@/components/stopwatch";
 import TitleScreen from "@/components/titleScreen";
+import WinScreen from "@/components/winScreen";
 import { useLobbyChannel } from "@/hooks/useLobbyChannel";
 import { usePlayChannel, type FinishEvent } from "@/hooks/usePlayChannel";
 import { checkAnswer, countProgress, formatDuration, GRID_SIZE } from "@/lib/game";
@@ -37,12 +38,16 @@ export default function MultiplayerPlayPage() {
   const { snapshot } = useLobbyChannel({ playerId });
   const started = snapshot?.status === "IN_PROGRESS" || snapshot?.status === "COMPLETED";
 
-  const { game, checkResult, sendCell, sendCheck, onFinish } = usePlayChannel(playerId, started);
+  const { game, checkResult, sendCell, sendCommit, sendCheck, onFinish } = usePlayChannel(
+    playerId,
+    started,
+  );
 
   const [answers, setAnswers] = useState<string[] | null>(null);
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
   const [showIntro, setShowIntro] = useState(false);
   const [introDone, setIntroDone] = useState(false);
+  const [winPending, setWinPending] = useState(false);
   const seenFinishes = useRef<Set<string>>(new Set());
   const navigated = useRef(false);
   const syncedRef = useRef(0);
@@ -87,9 +92,9 @@ export default function MultiplayerPlayPage() {
   useEffect(() => {
     onFinish((event: FinishEvent) => {
       if (event.playerId === playerId) {
-        if (!navigated.current && snapshot) {
-          navigated.current = true;
-          router.replace(`/mp/result/${snapshot.lobbyId}/${playerId}` as Route);
+        // Winning *now* earns the celebration; arriving already-finished does not.
+        if (!navigated.current) {
+          setWinPending(true);
         }
         return;
       }
@@ -105,12 +110,19 @@ export default function MultiplayerPlayPage() {
   const progress = game && answers ? countProgress(game.board, game.op, answers) : null;
   const revealed = game?.check === "input" || checkResult !== null;
 
-  useEffect(() => {
-    if (game?.finishedAt != null && snapshot && !navigated.current) {
-      navigated.current = true;
-      router.replace(`/mp/result/${snapshot.lobbyId}/${playerId}` as Route);
+  const goToResult = useCallback(() => {
+    if (navigated.current || !snapshot) {
+      return;
     }
-  }, [game?.finishedAt, snapshot, router, playerId]);
+    navigated.current = true;
+    router.replace(`/mp/result/${snapshot.lobbyId}/${playerId}` as Route);
+  }, [snapshot, router, playerId]);
+
+  useEffect(() => {
+    if (game?.finishedAt != null && !winPending) {
+      goToResult();
+    }
+  }, [game?.finishedAt, winPending, goToResult]);
 
   useEffect(() => {
     if (checkResult && !checkResult.solved && progress?.solved) {
@@ -135,11 +147,15 @@ export default function MultiplayerPlayPage() {
   }
 
   function handleCellBlur(index: number) {
-    if (!game || game.check !== "input" || !answers) {
+    if (!game || !answers) {
       return;
     }
     const value = answers[index] ?? "";
     if (value.trim() === "") {
+      return;
+    }
+    sendCommit(index);
+    if (game.check !== "input") {
       return;
     }
     const row = Math.floor(index / GRID_SIZE);
@@ -300,6 +316,8 @@ export default function MultiplayerPlayPage() {
           />
         ) : null}
       </AnimatePresence>
+
+      <AnimatePresence>{winPending ? <WinScreen onComplete={goToResult} /> : null}</AnimatePresence>
     </main>
   );
 }

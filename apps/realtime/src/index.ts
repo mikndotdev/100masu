@@ -127,7 +127,12 @@ const app = new Elysia()
   .ws("/channels/play", {
     query: t.Object({ id: t.String() }),
     body: t.Object({
-      type: t.Union([t.Literal("cell"), t.Literal("check"), t.Literal("ping")]),
+      type: t.Union([
+        t.Literal("cell"),
+        t.Literal("commit"),
+        t.Literal("check"),
+        t.Literal("ping"),
+      ]),
       index: t.Optional(t.Number()),
       value: t.Optional(t.String()),
     }),

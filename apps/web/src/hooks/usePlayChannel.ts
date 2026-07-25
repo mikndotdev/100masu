@@ -171,6 +171,13 @@ export function usePlayChannel(playerId: string | null, enabled: boolean) {
     outbox.current.set(index, value);
   }, []);
 
+  const sendCommit = useCallback((index: number) => {
+    const socket = socketRef.current;
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "commit", index }));
+    }
+  }, []);
+
   const sendCheck = useCallback(() => {
     const socket = socketRef.current;
     if (socket?.readyState === WebSocket.OPEN) {
@@ -178,5 +185,5 @@ export function usePlayChannel(playerId: string | null, enabled: boolean) {
     }
   }, []);
 
-  return { game, checkResult, connected, sendCell, sendCheck, onFinish };
+  return { game, checkResult, connected, sendCell, sendCommit, sendCheck, onFinish };
 }

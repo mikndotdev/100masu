@@ -166,3 +166,10 @@ export type SpectatePlayer = z.infer<typeof spectatePlayerSchema>;
 export function inviteUrl(code: string): string {
   return `${PUBLIC_ORIGIN}/invite/${code}`;
 }
+
+export function inviteErrorKey(error: "notFound" | "closed" | "full"): string {
+  if (error === "notFound") {
+    return "mp.lobbyNotFound";
+  }
+  return error === "closed" ? "mp.lobbyClosed" : "mp.lobbyFull";
+}

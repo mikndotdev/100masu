@@ -21,7 +21,7 @@ export const ja = {
     numberOrder: "数の順番",
     answerChecking: "答え合わせ",
     checkInput: "入力直後",
-    checkEnd: "全て入れたから",
+    checkEnd: "全て入れてから",
     play: "やってみる！",
     print: "印刷する",
     multiplayer: "マルチプレイ",
@@ -83,6 +83,8 @@ export const ja = {
     join: "ゲームに参加",
     invalidCode: "招待コードが無効です。",
     joinFailed: "ゲームに参加できませんでした。もう一度お試しください。",
+    checking: "Checking that code…",
+    tryAnother: "Try another code",
   },
   recent: {
     title: "過去のゲーム",

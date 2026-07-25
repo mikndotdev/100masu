@@ -121,6 +121,7 @@ export function buildCellStates(
   op: Operation,
   answers: string[],
   reveal: boolean,
+  committed?: ReadonlySet<number>,
 ): string {
   let cells = "";
   for (let index = 0; index < CELL_COUNT; index++) {
@@ -139,7 +140,7 @@ export function buildCellStates(
       cells += CELL_EMPTY;
       continue;
     }
-    if (!reveal) {
+    if (!reveal || (committed !== undefined && !committed.has(index))) {
       cells += CELL_FILLED;
       continue;
     }

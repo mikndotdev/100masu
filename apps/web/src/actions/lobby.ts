@@ -118,6 +118,26 @@ export const createLobby = actionClient
     redirect(`/mp/lobby/${lobby.Id}`);
   });
 
+export const lookupInvite = actionClient
+  .inputSchema(z.object({ code: inviteCodeSchema }))
+  .action(async ({ parsedInput }) => {
+    const lobby = await prisma.lobby.findUnique({
+      where: { InviteCode: parsedInput.code },
+      select: { Status: true, MaxPlayers: true, _count: { select: { Players: true } } },
+    });
+
+    if (!lobby) {
+      return { ok: false as const, error: "notFound" as const };
+    }
+    if (lobby.Status !== "OPEN") {
+      return { ok: false as const, error: "closed" as const };
+    }
+    if (lobby._count.Players >= lobby.MaxPlayers) {
+      return { ok: false as const, error: "full" as const };
+    }
+    return { ok: true as const };
+  });
+
 export const joinLobby = actionClient
   .inputSchema(
     z.object({

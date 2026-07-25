@@ -84,6 +84,8 @@ export const mikochi = {
     join: "Join game",
     invalidCode: "Enter a valid 6-character code.",
     joinFailed: "Could not join. Please check the code and try again.",
+    checking: "Checking that code…",
+    tryAnother: "Try another code",
   },
   recent: {
     title: "いままでのげーむ",
