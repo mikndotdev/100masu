@@ -122,7 +122,7 @@ export const ja = {
   },
   print: {
     title: "ワークシート印刷",
-    answerKey: "解答用紙をつける",
+    answerKey: "答えをつける",
     backToSetup: "作成画面に戻る",
     preparing: "Now Loading…",
     download: "PDFをダウンロード",
@@ -131,7 +131,7 @@ export const ja = {
     goToSetup: "作成画面へ",
     worksheetTitle: "百マス計算 · {{operation}}",
     worksheetNumbers: "{{range}}",
-    worksheetAnswerKey: " · 解答用紙",
+    worksheetAnswerKey: " · 答え",
   },
   win: {
     title: "やったね！",

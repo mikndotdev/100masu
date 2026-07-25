@@ -3,6 +3,7 @@
 import {
   Document,
   Font,
+  Image,
   Page,
   PDFDownloadLink,
   PDFViewer,
@@ -21,6 +22,8 @@ import {
 } from "@/lib/game";
 
 const FONT_FAMILY = "M PLUS Rounded 1c";
+const LOGO_SRC = "https://cdn.mikn.dev/branding/mikan-vtube.png";
+const SITE_URL = "100masu.mikn.dev";
 
 Font.register({
   family: FONT_FAMILY,
@@ -77,6 +80,18 @@ const styles = StyleSheet.create({
   cornerCell: { backgroundColor: "#dddddd" },
   headerText: { fontSize: 12, fontFamily: FONT_FAMILY, fontWeight: 700 },
   answerText: { fontSize: 11 },
+  footer: {
+    position: "absolute",
+    bottom: 24,
+    left: 36,
+    right: 36,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  // The source is 2000x700, so keep the 20:7 ratio to avoid stretching.
+  logo: { width: 46, height: 16, objectFit: "contain" },
+  footerText: { fontSize: 9, color: "#777777" },
 });
 
 function WorksheetPage({ board, op, title, subtitle, showAnswers }: WorksheetPageProps) {
@@ -111,6 +126,11 @@ function WorksheetPage({ board, op, title, subtitle, showAnswers }: WorksheetPag
             })}
           </View>
         ))}
+      </View>
+
+      <View style={styles.footer} fixed>
+        <Image style={styles.logo} src={LOGO_SRC} />
+        <Text style={styles.footerText}>{SITE_URL}</Text>
       </View>
     </Page>
   );
