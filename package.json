@@ -26,6 +26,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:realtime": "turbo run build -F realtime",
     "check-types": "turbo run check-types",
     "dev:web": "turbo run dev -F web",
     "db:push": "turbo run db:push -F @100masu/db",

@@ -38,6 +38,7 @@ function PlayPageContent() {
   const [winToken, setWinToken] = useState<string | null>(null);
   const celebrated = useRef(false);
   const wonThisSession = useRef(false);
+  const resetDialogRef = useRef<HTMLDialogElement>(null);
 
   const started = puzzle !== null && puzzle.startedAt !== null;
 
@@ -171,6 +172,11 @@ function PlayPageContent() {
     celebrated.current = false;
   }
 
+  function confirmReset() {
+    handleReset();
+    resetDialogRef.current?.close();
+  }
+
   if (!puzzle) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 px-4 text-center">
@@ -234,7 +240,11 @@ function PlayPageContent() {
               {t("play.checkAnswers")}
             </button>
           ) : null}
-          <button type="button" className="btn btn-ghost btn-sm" onClick={handleReset}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => resetDialogRef.current?.showModal()}
+          >
             <RotateCcw className="size-4" />
             {t("play.reset")}
           </button>
@@ -268,6 +278,24 @@ function PlayPageContent() {
       <AnimatePresence>
         {winToken ? <WinScreen onComplete={handleWinComplete} /> : null}
       </AnimatePresence>
+
+      <dialog ref={resetDialogRef} className="modal">
+        <div className="modal-box">
+          <h3 className="text-lg font-bold">{t("play.resetConfirmTitle")}</h3>
+          <p className="py-4">{t("play.resetConfirmBody")}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn btn-ghost">{t("play.cancel")}</button>
+            </form>
+            <button type="button" className="btn btn-error" onClick={confirmReset}>
+              {t("play.reset")}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </main>
   );
 }

@@ -11,8 +11,6 @@
     "moduleDetection": "force",
     "noUncheckedIndexedAccess": true,
     "noEmit": true,
-    "types": [
-      "bun-types" // add Bun global
-    ]
+    "types": ["bun"]
   }
 }

@@ -1,9 +1,84 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider     = "prisma-client"
+  output       = "../generated"
   moduleFormat = "esm"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum LobbyStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Operation {
+  ADD
+  SUB
+  MUL
+  DIV
+}
+
+enum NumberOrder {
+  SEQ
+  RAND
+}
+
+enum CheckMode {
+  INPUT
+  END
+}
+
+enum PlayerStatus {
+  JOINED
+  PLAYING
+  FINISHED
+}
+
+model Lobby {
+  Id          String      @id @default(cuid(2))
+  CreatedAt   DateTime    @default(now())
+  LastUpdated DateTime    @updatedAt
+  InviteCode  String      @unique
+  Status      LobbyStatus @default(OPEN)
+
+  Op          Operation   @default(ADD)
+  StartNumber Int         @default(1)
+  EndNumber   Int         @default(10)
+  Order       NumberOrder @default(SEQ) @map("NumberOrder")
+  Check       CheckMode   @default(INPUT)
+
+  TopHeaders  Int[]
+  LeftHeaders Int[]
+
+  MaxPlayers Int       @default(10)
+  StartedAt  DateTime?
+  FinishedAt DateTime?
+  ExpiresAt  DateTime?
+
+  Players Player[]
+
+  @@index([Status, LastUpdated])
+}
+
+model Player {
+  Id      String @id @default(cuid(2))
+  Lobby   Lobby  @relation(fields: [LobbyId], references: [Id], onDelete: Cascade)
+  LobbyId String
+  Name    String
+
+  IsHost Boolean      @default(false)
+  Status PlayerStatus @default(JOINED)
+
+  Answers      Json @default("{\"cells\":[]}")
+  CorrectCount Int  @default(0)
+  FilledCount  Int  @default(0)
+
+  JoinedAt   DateTime  @default(now())
+  LastSeenAt DateTime  @updatedAt
+  FinishedAt DateTime?
+
+  @@index([LobbyId])
 }

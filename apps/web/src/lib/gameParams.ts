@@ -99,3 +99,5 @@ export const puzzleParser = createParser<PuzzleState>({
 });
 
 export const serializePuzzle = createSerializer({ d: puzzleParser });
+
+export const serializeSettings = createSerializer(settingsParsers);

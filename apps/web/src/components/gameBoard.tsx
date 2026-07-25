@@ -137,6 +137,7 @@ export default function GameBoard({
                   <input
                     data-cell={`${row}-${col}`}
                     type="number"
+                    inputMode="numeric"
                     autoComplete="off"
                     disabled={!answerable}
                     value={value}
