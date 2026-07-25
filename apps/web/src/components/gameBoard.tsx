@@ -97,7 +97,14 @@ export default function GameBoard({
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) {
-    if (event.key === "Enter" || event.key === "ArrowDown") {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (row + 1 < GRID_SIZE) {
+        focusCell(row + 1, col);
+      } else {
+        focusCell(0, col + 1);
+      }
+    } else if (event.key === "ArrowDown") {
       event.preventDefault();
       focusCell(row + 1, col);
     } else if (event.key === "ArrowUp") {
