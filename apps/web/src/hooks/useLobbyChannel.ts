@@ -3,6 +3,7 @@
 import { env } from "@100masu/env/web";
 import { useEffect, useRef, useState } from "react";
 
+import { useSoundEffect } from "@/components/soundProvider";
 import { lobbySnapshotSchema, type LobbySnapshot } from "@/lib/lobby";
 
 type ChannelTarget = { lobbyId?: string; playerId?: string };
@@ -26,7 +27,21 @@ export function useLobbyChannel(target: ChannelTarget) {
   const [snapshot, setSnapshot] = useState<LobbySnapshot | null>(null);
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+  const playerCountRef = useRef<number | null>(null);
+  const { play } = useSoundEffect();
   const { lobbyId, playerId } = target;
+
+  useEffect(() => {
+    if (!snapshot) {
+      return;
+    }
+    const count = snapshot.players.length;
+    const previous = playerCountRef.current;
+    playerCountRef.current = count;
+    if (previous !== null && count > previous) {
+      play("join");
+    }
+  }, [snapshot, play]);
 
   useEffect(() => {
     const url = channelUrl({ lobbyId, playerId });
