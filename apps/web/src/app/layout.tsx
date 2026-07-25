@@ -56,6 +56,7 @@ export default function RootLayout({
           defer
           src="https://cdn.mikn.dev/analytics/script"
           data-website-id="34d8778e-f0e2-45b1-aff5-05a818d24326"
+          data-host-url="https://analytics.mikandev.com"
         />
       </head>
       <body
