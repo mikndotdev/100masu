@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Gloria_Hallelujah, M_PLUS_Rounded_1c } from "next/font/google";
 import localFont from "next/font/local";
 import Providers from "@/components/providers";
@@ -35,9 +35,13 @@ const dseg = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "100masu",
-  description: "100masu",
+  title: "百マス計算",
+  description: "好きな数字で百マス計算に挑戦！！マルチプレイもできます！",
 };
+
+export const viewport: Viewport = {
+  themeColor: "#FF7700"
+}
 
 export default function RootLayout({
   children,

@@ -2,10 +2,15 @@
   "name": "realtime",
   "type": "module",
   "scripts": {
-    "start": "bun run main.ts",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun build --compile src/index.ts --outfile realtime",
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
+    "@100masu/db": "workspace:*",
+    "@100masu/env": "workspace:*",
     "elysia": "1"
   },
   "devDependencies": {
