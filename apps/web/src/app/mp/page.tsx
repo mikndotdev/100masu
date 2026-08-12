@@ -9,9 +9,9 @@ import { toast } from "sonner";
 
 import { createLobby } from "@/actions/lobby";
 import Captcha from "@/components/captcha";
-import LanguageSwitch from "@/components/languageSwitch";
-import SettingsForm from "@/components/settingsForm";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SettingsForm from "@100masu/ui/components/settingsForm";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { settingsParsers } from "@/lib/gameParams";
 
 function MultiplayerSetupContent() {

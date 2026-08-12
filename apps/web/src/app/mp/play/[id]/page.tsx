@@ -8,21 +8,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import CurrentCalculation from "@/components/currentCalculation";
-import GameBoard from "@/components/gameBoard";
-import LanguageSwitch from "@/components/languageSwitch";
-import Leaderboard from "@/components/leaderboard";
-import OpponentsPane from "@/components/opponentsPane";
-import { useSoundEffect } from "@/components/soundProvider";
-import SoundToggle from "@/components/soundToggle";
-import Stopwatch from "@/components/stopwatch";
-import TitleScreen from "@/components/titleScreen";
-import WinScreen from "@/components/winScreen";
-import { useLobbyChannel } from "@/hooks/useLobbyChannel";
-import { usePlayChannel, type FinishEvent } from "@/hooks/usePlayChannel";
+import CurrentCalculation from "@100masu/ui/components/currentCalculation";
+import GameBoard from "@100masu/ui/components/gameBoard";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import Leaderboard from "@100masu/ui/components/leaderboard";
+import OpponentsPane from "@100masu/ui/components/opponentsPane";
+import { useSoundEffect } from "@100masu/ui/components/soundProvider";
+import SoundToggle from "@100masu/ui/components/soundToggle";
+import Stopwatch from "@100masu/ui/components/stopwatch";
+import TitleScreen from "@100masu/ui/components/titleScreen";
+import WinScreen from "@100masu/ui/components/winScreen";
+import { useLobbyChannel } from "@100masu/ui/hooks/useLobbyChannel";
+import { usePlayChannel, type FinishEvent } from "@100masu/ui/hooks/usePlayChannel";
 import { checkAnswer, countProgress, formatDuration, GRID_SIZE } from "@/lib/game";
 import { MAX_PLAYERS } from "@/lib/lobby";
-import { useOpponentsStore } from "@/stores/opponents";
+import { useOpponentsStore } from "@100masu/ui/store/opponents";
 
 type ActiveCell = { row: number; col: number };
 

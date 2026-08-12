@@ -2,6 +2,7 @@ import prisma from "@100masu/db";
 import { cors } from "@elysiajs/cors";
 import { Elysia, t } from "elysia";
 
+import { exchangeCode } from "./discord";
 import {
   closePlaySocket,
   closeSpectateSocket,
@@ -86,6 +87,22 @@ async function broadcast(lobbyId: string) {
 const app = new Elysia()
   .use(cors())
   .get("/", () => ({ hello: "Bun👋" }))
+  .post(
+    "/discord/token",
+    async ({ body, status }) => {
+      const result = await exchangeCode(body.code);
+      if (!result.ok) {
+        return status(result.error === "unconfigured" ? 503 : 502, { error: result.error });
+      }
+      return { access_token: result.accessToken };
+    },
+    { body: t.Object({ code: t.String({ minLength: 1 }) }) },
+  )
+  .ws("/channels/ping", {
+    message(ws, body) {
+      ws.send({ type: "pong", echo: body, serverNow: Date.now() });
+    },
+  })
   .ws("/channels/lobby", {
     query: t.Object({ id: t.Optional(t.String()), player: t.Optional(t.String()) }),
     async open(ws) {

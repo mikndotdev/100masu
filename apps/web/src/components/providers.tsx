@@ -1,31 +1,19 @@
 "use client";
 
+import { env } from "@100masu/env/web";
+import MobileMenu from "@100masu/ui/components/mobileMenu";
+import UiProvider from "@100masu/ui/components/uiProvider";
 import { NuqsAdapter } from "nuqs/adapters/next";
-import { useEffect } from "react";
-import { I18nextProvider } from "react-i18next";
 import { Toaster } from "sonner";
 
-import MobileMenu from "@/components/mobileMenu";
-import { SoundProvider } from "@/components/soundProvider";
-import i18n, { LANGUAGE_STORAGE_KEY } from "@/lib/i18n";
-
 export default function Providers({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (stored && stored !== i18n.resolvedLanguage) {
-      void i18n.changeLanguage(stored);
-    }
-  }, []);
-
   return (
-    <I18nextProvider i18n={i18n}>
+    <UiProvider realtimeBaseUrl={env.NEXT_PUBLIC_REALTIME_BACKEND_URL ?? ""}>
       <NuqsAdapter>
-        <SoundProvider>
-          {children}
-          <MobileMenu />
-          <Toaster richColors position={"bottom-center"} />
-        </SoundProvider>
+        {children}
+        <MobileMenu />
+        <Toaster richColors position={"bottom-center"} />
       </NuqsAdapter>
-    </I18nextProvider>
+    </UiProvider>
   );
 }

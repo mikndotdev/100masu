@@ -1,0 +1,39 @@
+{
+  "name": "@100masu/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./protocol": "./src/protocol/index.ts",
+    "./store/opponents": "./src/store/opponents.ts",
+    "./i18n": "./src/i18n/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc"
+  },
+  "dependencies": {
+    "@100masu/game": "workspace:*",
+    "howler": "^2.2.4",
+    "i18next": "^26.3.6",
+    "lucide-react": "catalog:",
+    "motion": "^12.42.2",
+    "react-i18next": "^17.0.11",
+    "vaul": "^1.1.2",
+    "zod": "catalog:",
+    "zustand": "^5.0.14"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@100masu/config": "workspace:*",
+    "@types/howler": "^2.2.13",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -7,9 +7,9 @@ import { useQueryState } from "nuqs";
 import { Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitch from "@/components/languageSwitch";
-import { useSoundEffect } from "@/components/soundProvider";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import { useSoundEffect } from "@100masu/ui/components/soundProvider";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { emptyAnswers, formatDuration, OPERATION_SYMBOL } from "@/lib/game";
 import { puzzleParser } from "@/lib/gameParams";
 

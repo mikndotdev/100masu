@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { joinLobby, lookupInvite } from "@/actions/lobby";
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { inviteErrorKey, MAX_NAME_LENGTH, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteJoinPage() {

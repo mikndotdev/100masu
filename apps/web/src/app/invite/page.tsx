@@ -7,8 +7,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { lookupInvite } from "@/actions/lobby";
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { INVITE_CODE_LENGTH, inviteErrorKey, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteCodePage() {

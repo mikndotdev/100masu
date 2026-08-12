@@ -38,10 +38,21 @@ try {
     progress?.correct === 2,
     `cross-instance: correct count propagated (got ${progress?.correct})`,
   );
-  results.check(progress?.cells.slice(0, 2) === "22", "cross-instance: cell states propagated");
+  results.check(
+    progress?.cells.slice(0, 2) === "11",
+    `cross-instance: uncommitted cells stay masked across instances (got ${progress?.cells.slice(0, 2)})`,
+  );
   results.check(
     !b.msgs.some((m) => m.type === "progress" && "answers" in m),
     "SECURITY: no answers cross the instance boundary",
+  );
+
+  a.ws.send(JSON.stringify({ type: "commit", index: 0 }));
+  a.ws.send(JSON.stringify({ type: "commit", index: 1 }));
+  await wait(1200);
+  results.check(
+    lastProgressFor(b, alice.Id)?.cells.slice(0, 2) === "22",
+    "cross-instance: committing reveals the verdict across instances",
   );
 
   fillBoard(a);

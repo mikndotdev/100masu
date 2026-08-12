@@ -6,8 +6,8 @@ import { useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { puzzleParser } from "@/lib/gameParams";
 
 const PrintWorksheet = dynamic(() => import("@/components/printWorksheet"), {
