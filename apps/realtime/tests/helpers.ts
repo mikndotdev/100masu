@@ -12,6 +12,23 @@ export function correctFor(index: number): string {
 
 export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+export async function until(
+  predicate: () => boolean | Promise<boolean>,
+  timeoutMs: number,
+  stepMs = 100,
+): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (await predicate()) {
+      return true;
+    }
+    if (Date.now() >= deadline) {
+      return false;
+    }
+    await wait(stepMs);
+  }
+}
+
 export class Results {
   private passed: string[] = [];
   private failed: string[] = [];

@@ -11,6 +11,7 @@ export type Session = {
   lobbyId: string;
   accessToken: string;
   isHost: boolean;
+  token: string;
 };
 
 function httpUrl(path: string): string {
@@ -41,6 +42,7 @@ export function createSession(input: {
 
 export function pushSettings(input: {
   playerId: string;
+  token: string;
   op: "add" | "sub" | "mul" | "div";
   start: number;
   order: "seq" | "rand";
@@ -49,14 +51,18 @@ export function pushSettings(input: {
   return send("/discord/settings", "PATCH", input);
 }
 
-export function pushSettingsOpen(playerId: string, open: boolean): Promise<{ ok: true }> {
-  return send("/discord/lobby", "PATCH", { playerId, open });
+export function pushSettingsOpen(
+  playerId: string,
+  token: string,
+  open: boolean,
+): Promise<{ ok: true }> {
+  return send("/discord/lobby", "PATCH", { playerId, token, open });
 }
 
-export function startGame(playerId: string): Promise<{ ok: true }> {
-  return send("/discord/start", "POST", { playerId });
+export function startGame(playerId: string, token: string): Promise<{ ok: true }> {
+  return send("/discord/start", "POST", { playerId, token });
 }
 
-export function requestRematch(playerId: string): Promise<{ lobbyId: string }> {
-  return send("/discord/rematch", "POST", { playerId });
+export function requestRematch(playerId: string, token: string): Promise<{ lobbyId: string }> {
+  return send("/discord/rematch", "POST", { playerId, token });
 }

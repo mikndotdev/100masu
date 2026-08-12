@@ -27,6 +27,7 @@ import { useOpponentsStore } from "@100masu/ui/store/opponents";
 type ActiveCell = { row: number; col: number };
 
 const INTRO_GRACE_MS = 15_000;
+const MAX_RECHECKS = 3;
 
 export default function MultiplayerPlayPage() {
   const { t } = useTranslation();
@@ -52,6 +53,8 @@ export default function MultiplayerPlayPage() {
   const navigated = useRef(false);
   const syncedRef = useRef(0);
   const lastCheckToast = useRef(0);
+  const recheckedFor = useRef<string | null>(null);
+  const recheckAttempts = useRef(0);
   const resetOpponents = useOpponentsStore((state) => state.reset);
 
   useEffect(() => {
@@ -124,9 +127,16 @@ export default function MultiplayerPlayPage() {
   }, [game?.finishedAt, winPending, goToResult]);
 
   useEffect(() => {
-    if (checkResult && !checkResult.solved && progress?.solved) {
-      sendCheck();
+    if (!checkResult || checkResult.solved || !progress?.solved) {
+      return;
     }
+    const signature = `${checkResult.correct}/${checkResult.answerable}`;
+    if (recheckedFor.current === signature || recheckAttempts.current >= MAX_RECHECKS) {
+      return;
+    }
+    recheckedFor.current = signature;
+    recheckAttempts.current += 1;
+    sendCheck();
   }, [checkResult, progress?.solved, sendCheck]);
 
   function handleCellChange(index: number, value: string) {

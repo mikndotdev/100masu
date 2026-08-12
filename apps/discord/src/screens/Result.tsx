@@ -91,7 +91,7 @@ export default function Result({ session, snapshot, presence, onRematch }: Resul
     setBusy(true);
     setError(null);
     try {
-      await requestRematch(session.playerId);
+      await requestRematch(session.playerId, session.token);
       onRematch();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));

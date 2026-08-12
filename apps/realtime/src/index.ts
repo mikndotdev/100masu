@@ -190,6 +190,7 @@ const app = new Elysia()
         lobbyId: result.lobbyId,
         accessToken: result.accessToken,
         isHost: result.isHost,
+        token: result.token,
       };
     },
     {
@@ -214,6 +215,7 @@ const app = new Elysia()
     {
       body: t.Object({
         playerId: t.String({ minLength: 1 }),
+        token: t.String({ minLength: 1 }),
         op: t.Union([t.Literal("add"), t.Literal("sub"), t.Literal("mul"), t.Literal("div")]),
         start: t.Integer(),
         order: t.Union([t.Literal("seq"), t.Literal("rand")]),
@@ -231,7 +233,13 @@ const app = new Elysia()
       await notifyLobbyChange(result.lobbyId);
       return { ok: true };
     },
-    { body: t.Object({ playerId: t.String({ minLength: 1 }), open: t.Boolean() }) },
+    {
+      body: t.Object({
+        playerId: t.String({ minLength: 1 }),
+        token: t.String({ minLength: 1 }),
+        open: t.Boolean(),
+      }),
+    },
   )
   .post(
     "/discord/start",
@@ -243,7 +251,7 @@ const app = new Elysia()
       await notifyLobbyChange(result.lobbyId);
       return { ok: true };
     },
-    { body: t.Object({ playerId: t.String({ minLength: 1 }) }) },
+    { body: t.Object({ playerId: t.String({ minLength: 1 }), token: t.String({ minLength: 1 }) }) },
   )
   .post(
     "/discord/rematch",
@@ -255,7 +263,7 @@ const app = new Elysia()
       await notifyLobbyChange(result.previousLobbyId);
       return { lobbyId: result.lobbyId };
     },
-    { body: t.Object({ playerId: t.String({ minLength: 1 }) }) },
+    { body: t.Object({ playerId: t.String({ minLength: 1 }), token: t.String({ minLength: 1 }) }) },
   )
   .ws("/channels/ping", {
     message(ws) {

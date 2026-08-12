@@ -1,6 +1,6 @@
 import prisma from "@100masu/db";
 
-import { HEADERS, requireServer, Results, wait } from "./helpers";
+import { HEADERS, requireServer, Results, until, wait } from "./helpers";
 
 const BASE = process.env.REALTIME_URL ?? "ws://localhost:8080";
 const results = new Results();
@@ -88,8 +88,20 @@ async function transfersToConnectedPlayer() {
       "transfer: nothing changes before the grace period elapses",
     );
 
-    await wait(GRACE_MS);
-    const promoted = await hostOf(seeded.lobby.Id);
+    const sawBroadcast = (id: string | null) =>
+      id !== null &&
+      [...b.msgs, ...c.msgs].some((message) => {
+        const players = (message as { players?: { id: string; isHost: boolean }[] }).players;
+        return players?.some((player) => player.id === id && player.isHost);
+      });
+
+    let promoted: string | null = null;
+    await until(async () => {
+      promoted = await hostOf(seeded.lobby.Id);
+      const moved = promoted === second.Id || promoted === third.Id;
+      return moved && sawBroadcast(promoted);
+    }, GRACE_MS + 8000);
+
     results.check(
       promoted === second.Id || promoted === third.Id,
       `transfer: host moves to a connected player (got ${promoted === host.Id ? "the departed host" : "a connected player"})`,
@@ -100,11 +112,10 @@ async function transfersToConnectedPlayer() {
     });
     results.check(hosts === 1, `transfer: exactly one host remains (got ${hosts})`);
 
-    const broadcastSawIt = [...b.msgs, ...c.msgs].some((message) => {
-      const players = (message as { players?: { id: string; isHost: boolean }[] }).players;
-      return players?.some((player) => player.id === promoted && player.isHost);
-    });
-    results.check(broadcastSawIt, "transfer: the new host is broadcast to the remaining clients");
+    results.check(
+      sawBroadcast(promoted),
+      "transfer: the new host is broadcast to the remaining clients",
+    );
 
     b.ws.close();
     c.ws.close();

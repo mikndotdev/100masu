@@ -86,7 +86,7 @@ export default function Setup({ session, snapshot, presence }: SetupProps) {
         </ul>
       </section>
 
-      <div className={`card bg-base-200 ${canEdit ? "" : "pointer-events-none opacity-60"}`}>
+      <fieldset disabled={!canEdit} className={`card bg-base-200 ${canEdit ? "" : "opacity-60"}`}>
         <div className="card-body gap-5">
           <SettingsForm
             settings={settings}
@@ -94,6 +94,7 @@ export default function Setup({ session, snapshot, presence }: SetupProps) {
               void guard(() =>
                 pushSettings({
                   playerId: session.playerId,
+                  token: session.token,
                   op: next.op ?? settings.op,
                   start: next.start ?? settings.start,
                   order: next.order ?? settings.order,
@@ -103,7 +104,7 @@ export default function Setup({ session, snapshot, presence }: SetupProps) {
             }
           />
         </div>
-      </div>
+      </fieldset>
 
       {isHost ? (
         <label className="flex cursor-pointer items-center justify-between gap-4 rounded-box bg-base-200 px-4 py-3">
@@ -114,7 +115,9 @@ export default function Setup({ session, snapshot, presence }: SetupProps) {
             checked={snapshot.settingsOpen}
             disabled={busy}
             onChange={(event) =>
-              void guard(() => pushSettingsOpen(session.playerId, event.target.checked))
+              void guard(() =>
+                pushSettingsOpen(session.playerId, session.token, event.target.checked),
+              )
             }
           />
         </label>
@@ -127,7 +130,7 @@ export default function Setup({ session, snapshot, presence }: SetupProps) {
           type="button"
           className="btn btn-primary btn-lg"
           disabled={busy}
-          onClick={() => void guard(() => startGame(session.playerId))}
+          onClick={() => void guard(() => startGame(session.playerId, session.token))}
         >
           {t("mp.startGame")}
         </button>

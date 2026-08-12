@@ -1,6 +1,7 @@
 import prisma from "@100masu/db";
 import { env } from "@100masu/env/server";
 import { generateHeaders, INTRO_MS, MAX_PLAYERS, type Order } from "@100masu/game";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 const TOKEN_URL = "https://discord.com/api/oauth2/token";
 const USER_URL = "https://discord.com/api/users/@me";
@@ -21,7 +22,25 @@ type Session = {
   lobbyId: string;
   accessToken: string;
   isHost: boolean;
+  token: string;
 };
+
+export function signPlayer(playerId: string): string {
+  const secret = env.DISCORD_CLIENT_SECRET ?? "";
+  return createHmac("sha256", secret).update(playerId).digest("hex");
+}
+
+function verifyPlayer(playerId: string, token: string): boolean {
+  if (!env.DISCORD_CLIENT_SECRET) {
+    return false;
+  }
+  const expected = Buffer.from(signPlayer(playerId));
+  const supplied = Buffer.from(token);
+  if (expected.length !== supplied.length) {
+    return false;
+  }
+  return timingSafeEqual(expected, supplied);
+}
 
 const ORDER_FROM_DB: Record<string, Order> = { SEQ: "seq", RAND: "rand" };
 
@@ -181,6 +200,7 @@ export async function createSession(input: {
       lobbyId: lobby.Id,
       accessToken,
       isHost: existing.IsHost,
+      token: signPlayer(existing.Id),
     };
   }
 
@@ -203,10 +223,20 @@ export async function createSession(input: {
     },
   });
 
-  return { ok: true, playerId: player.Id, lobbyId: lobby.Id, accessToken, isHost };
+  return {
+    ok: true,
+    playerId: player.Id,
+    lobbyId: lobby.Id,
+    accessToken,
+    isHost,
+    token: signPlayer(player.Id),
+  };
 }
 
-async function loadActor(playerId: string) {
+async function loadActor(playerId: string, token: string) {
+  if (!verifyPlayer(playerId, token)) {
+    return null;
+  }
   return prisma.player.findUnique({
     where: { Id: playerId },
     include: { Lobby: true },
@@ -215,12 +245,13 @@ async function loadActor(playerId: string) {
 
 export async function updateSettings(input: {
   playerId: string;
+  token: string;
   op: "add" | "sub" | "mul" | "div";
   start: number;
   order: "seq" | "rand";
   check: "input" | "end";
 }): Promise<{ ok: true; lobbyId: string } | Failure> {
-  const actor = await loadActor(input.playerId);
+  const actor = await loadActor(input.playerId, input.token);
   if (!actor) {
     return fail("notFound", 404);
   }
@@ -247,9 +278,10 @@ export async function updateSettings(input: {
 
 export async function setSettingsOpen(input: {
   playerId: string;
+  token: string;
   open: boolean;
 }): Promise<{ ok: true; lobbyId: string } | Failure> {
-  const actor = await loadActor(input.playerId);
+  const actor = await loadActor(input.playerId, input.token);
   if (!actor) {
     return fail("notFound", 404);
   }
@@ -270,8 +302,9 @@ export async function setSettingsOpen(input: {
 
 export async function startGame(input: {
   playerId: string;
+  token: string;
 }): Promise<{ ok: true; lobbyId: string } | Failure> {
-  const actor = await loadActor(input.playerId);
+  const actor = await loadActor(input.playerId, input.token);
   if (!actor) {
     return fail("notFound", 404);
   }
@@ -301,8 +334,9 @@ export async function startGame(input: {
 
 export async function rematch(input: {
   playerId: string;
+  token: string;
 }): Promise<{ ok: true; lobbyId: string; previousLobbyId: string } | Failure> {
-  const actor = await loadActor(input.playerId);
+  const actor = await loadActor(input.playerId, input.token);
   if (!actor) {
     return fail("notFound", 404);
   }

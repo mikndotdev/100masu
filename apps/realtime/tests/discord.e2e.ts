@@ -1,6 +1,7 @@
 import prisma from "@100masu/db";
 import { GRID_SIZE } from "@100masu/game";
 
+import { signPlayer } from "../src/discord";
 import { HEADERS, requireServer, Results } from "./helpers";
 
 const BASE = process.env.REALTIME_URL ?? "ws://localhost:8080";
@@ -63,6 +64,7 @@ async function call(path: string, method: string, body: unknown) {
 
 const settingsBody = (playerId: string) => ({
   playerId,
+  token: signPlayer(playerId),
   op: "mul" as const,
   start: 3,
   order: "rand" as const,
@@ -77,12 +79,14 @@ async function settingsAuth() {
 
     const guestToggle = await call("/discord/lobby", "PATCH", {
       playerId: seeded.guest.Id,
+      token: signPlayer(seeded.guest.Id),
       open: true,
     });
     results.check(guestToggle.status === 403, "settings: a non-host cannot open the switch");
 
     const opened = await call("/discord/lobby", "PATCH", {
       playerId: seeded.host.Id,
+      token: signPlayer(seeded.host.Id),
       open: true,
     });
     results.check(opened.status === 200, "settings: the host can open the switch");
@@ -107,10 +111,16 @@ async function settingsAuth() {
 async function startAuth() {
   const seeded: Seeded = await seedDiscordLobby();
   try {
-    const guest = await call("/discord/start", "POST", { playerId: seeded.guest.Id });
+    const guest = await call("/discord/start", "POST", {
+      playerId: seeded.guest.Id,
+      token: signPlayer(seeded.guest.Id),
+    });
     results.check(guest.status === 403, "start: a non-host cannot start");
 
-    const host = await call("/discord/start", "POST", { playerId: seeded.host.Id });
+    const host = await call("/discord/start", "POST", {
+      playerId: seeded.host.Id,
+      token: signPlayer(seeded.host.Id),
+    });
     results.check(host.status === 200, "start: the host can start");
 
     const lobby = await prisma.lobby.findUnique({ where: { Id: seeded.lobby.Id } });
@@ -124,7 +134,10 @@ async function startAuth() {
       "start: StartedAt is in the future for the countdown",
     );
 
-    const again = await call("/discord/start", "POST", { playerId: seeded.host.Id });
+    const again = await call("/discord/start", "POST", {
+      playerId: seeded.host.Id,
+      token: signPlayer(seeded.host.Id),
+    });
     results.check(again.status === 409, "start: starting twice is rejected");
 
     const late = await call("/discord/settings", "PATCH", settingsBody(seeded.host.Id));
@@ -137,7 +150,10 @@ async function startAuth() {
 async function rematchFlow() {
   const open: Seeded = await seedDiscordLobby("OPEN");
   try {
-    const tooEarly = await call("/discord/rematch", "POST", { playerId: open.host.Id });
+    const tooEarly = await call("/discord/rematch", "POST", {
+      playerId: open.host.Id,
+      token: signPlayer(open.host.Id),
+    });
     results.check(tooEarly.status === 409, "rematch: refused while the game is unfinished");
   } finally {
     await open.cleanup();
@@ -145,7 +161,10 @@ async function rematchFlow() {
 
   const done: Seeded = await seedDiscordLobby("COMPLETED");
   try {
-    const first = await call("/discord/rematch", "POST", { playerId: done.host.Id });
+    const first = await call("/discord/rematch", "POST", {
+      playerId: done.host.Id,
+      token: signPlayer(done.host.Id),
+    });
     results.check(first.status === 200, "rematch: accepted on a completed lobby");
 
     const nextId = (first.body as { lobbyId?: string } | null)?.lobbyId;
@@ -169,7 +188,10 @@ async function rematchFlow() {
     results.check(next?.Status === "OPEN", "rematch: the new lobby starts open");
     results.check(next?.Op === done.lobby.Op, "rematch: settings carry over");
 
-    const repeat = await call("/discord/rematch", "POST", { playerId: done.host.Id });
+    const repeat = await call("/discord/rematch", "POST", {
+      playerId: done.host.Id,
+      token: signPlayer(done.host.Id),
+    });
     results.check(
       repeat.status === 200 && (repeat.body as { lobbyId?: string } | null)?.lobbyId === nextId,
       "rematch: a second click is idempotent",
@@ -179,14 +201,59 @@ async function rematchFlow() {
   }
 }
 
+async function hostImpersonation() {
+  const seeded: Seeded = await seedDiscordLobby();
+  try {
+    const noToken = await fetch(`${HTTP}/discord/start`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ playerId: seeded.host.Id }),
+    });
+    results.check(
+      noToken.status >= 400,
+      `bypass: starting with no token is rejected (got ${noToken.status})`,
+    );
+
+    const guestToken = await call("/discord/start", "POST", {
+      playerId: seeded.host.Id,
+      token: signPlayer(seeded.guest.Id),
+    });
+    results.check(
+      guestToken.status >= 400,
+      `bypass: the host's id signed by another player is rejected (got ${guestToken.status})`,
+    );
+
+    const forged = await call("/discord/start", "POST", {
+      playerId: seeded.host.Id,
+      token: "0".repeat(64),
+    });
+    results.check(forged.status >= 400, "bypass: a forged token is rejected");
+
+    const stillOpen = await prisma.lobby.findUnique({ where: { Id: seeded.lobby.Id } });
+    results.check(stillOpen?.Status === "OPEN", "bypass: none of those actually started the game");
+
+    const genuine = await call("/discord/start", "POST", {
+      playerId: seeded.host.Id,
+      token: signPlayer(seeded.host.Id),
+    });
+    results.check(genuine.status === 200, "bypass: the correctly signed host still succeeds");
+  } finally {
+    await seeded.cleanup();
+  }
+}
+
 async function unknownPlayer() {
-  const missing = await call("/discord/start", "POST", { playerId: "not-a-player" });
+  const missing = await call("/discord/start", "POST", {
+    playerId: "not-a-player",
+    token: signPlayer("not-a-player"),
+  });
   results.check(missing.status === 404, "auth: an unknown player id is rejected");
 }
 
 await settingsAuth();
 await startAuth();
 await rematchFlow();
+await hostImpersonation();
 await unknownPlayer();
 
 process.exit(results.report() > 0 ? 1 : 0);

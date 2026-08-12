@@ -6,6 +6,7 @@ import {
   requireServer,
   Results,
   seedLobby,
+  until,
   wait,
 } from "./helpers";
 
@@ -47,14 +48,14 @@ try {
 
   a.ws.send(JSON.stringify({ type: "commit", index: 0 }));
   a.ws.send(JSON.stringify({ type: "commit", index: 1 }));
-  await wait(1200);
-  results.check(
-    lastProgressFor(b, alice.Id)?.cells.slice(0, 2) === "22",
-    "cross-instance: committing reveals the verdict across instances",
+  const revealed = await until(
+    () => lastProgressFor(b, alice.Id)?.cells.slice(0, 2) === "22",
+    5000,
   );
+  results.check(revealed, "cross-instance: committing reveals the verdict across instances");
 
   fillBoard(a);
-  await wait(1800);
+  await until(() => b.msgs.some((m) => m.type === "finished"), 8000);
   const finished = b.msgs.find((m) => m.type === "finished") as
     | { playerId: string; placement: number }
     | undefined;
