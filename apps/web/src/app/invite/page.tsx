@@ -7,8 +7,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { lookupInvite } from "@/actions/lobby";
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { INVITE_CODE_LENGTH, inviteErrorKey, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteCodePage() {
@@ -53,7 +53,7 @@ export default function InviteCodePage() {
 
       <div className="card w-full bg-base-200 shadow-xl">
         <div className="card-body gap-6">
-          <label className="form-control">
+          <label className="flex flex-col">
             <span className="mb-1 font-semibold">{t("invite.codeLabel")}</span>
             <input
               type="text"
@@ -62,7 +62,7 @@ export default function InviteCodePage() {
               autoCapitalize="characters"
               maxLength={INVITE_CODE_LENGTH}
               placeholder={t("invite.codePlaceholder")}
-              className={`input input-bordered w-full text-center font-mono text-3xl tracking-[0.3em] uppercase ${
+              className={`input w-full text-center font-mono text-3xl tracking-[0.3em] uppercase ${
                 error ? "input-error" : ""
               }`}
               value={code}

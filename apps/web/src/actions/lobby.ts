@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { verifyCaptcha } from "@/lib/captcha";
-import { generateHeaders, GRID_SIZE } from "@/lib/game";
+import { generateHeaders, GRID_SIZE, INTRO_MS } from "@/lib/game";
 import {
   CHECK_TO_DB,
   generateInviteCode,
@@ -25,7 +25,6 @@ const PLAYER_COOKIE = "mp-player";
 const LOBBY_COOKIE = "mp-lobby";
 const COOKIE_MAX_AGE = 60 * 60 * 6;
 const LOBBY_TTL_MS = 1000 * 60 * 60 * 6;
-const INTRO_MS = 5400;
 
 async function clientIp(): Promise<string> {
   const headerList = await headers();
@@ -141,11 +140,12 @@ export const lookupInvite = actionClient
         Status: true,
         MaxPlayers: true,
         AllowLateJoin: true,
+        DiscordInstanceId: true,
         _count: { select: { Players: true } },
       },
     });
 
-    if (!lobby) {
+    if (!lobby || lobby.DiscordInstanceId !== null) {
       return { ok: false as const, error: "notFound" as const };
     }
     const gate = joinGate(lobby.Status, lobby.AllowLateJoin);
@@ -171,7 +171,7 @@ export const joinLobby = actionClient
       include: { Players: true },
     });
 
-    if (!lobby) {
+    if (!lobby || lobby.DiscordInstanceId !== null) {
       return { ok: false as const, error: "notFound" as const };
     }
     const gate = joinGate(lobby.Status, lobby.AllowLateJoin);

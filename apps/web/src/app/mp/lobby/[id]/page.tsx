@@ -11,9 +11,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { startGame } from "@/actions/lobby";
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
-import { useLobbyChannel } from "@/hooks/useLobbyChannel";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
+import { useLobbyChannel } from "@100masu/ui/hooks/useLobbyChannel";
 import { inviteUrl, MAX_PLAYERS, MIN_PLAYERS, PUBLIC_ORIGIN } from "@/lib/lobby";
 
 export default function LobbyPage() {

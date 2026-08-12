@@ -6,10 +6,10 @@ import { useQueryStates } from "nuqs";
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitch from "@/components/languageSwitch";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
 import RecentGames from "@/components/recentGames";
-import SettingsForm from "@/components/settingsForm";
-import SoundToggle from "@/components/soundToggle";
+import SettingsForm from "@100masu/ui/components/settingsForm";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { emptyAnswers, generateBoard } from "@/lib/game";
 import {
   type PuzzleState,

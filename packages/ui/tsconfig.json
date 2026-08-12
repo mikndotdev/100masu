@@ -1,0 +1,10 @@
+{
+  "extends": "@100masu/config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "types": []
+  },
+  "include": ["src"]
+}

@@ -34,7 +34,6 @@ async function instantMode() {
       "instant: receives game snapshot with board",
     );
 
-    // The real client commits on blur; without that a cell stays neutral by design.
     a.ws.send(JSON.stringify({ type: "cell", index: 0, value: correctFor(0) }));
     a.ws.send(JSON.stringify({ type: "commit", index: 0 }));
     await wait(500);
@@ -43,7 +42,6 @@ async function instantMode() {
     results.check(!!progress, "instant: bob receives alice's progress delta");
     results.check(progress?.cells.startsWith("2") === true, "instant: first cell marked correct");
 
-    // Bob's own answers may appear in his own snapshot; nobody else's ever may.
     const foreignAnswers = b.msgs.some((m) => {
       if (m.type === "game") {
         const game = m as { you?: { id?: string }; players?: unknown[] };
@@ -117,7 +115,6 @@ async function endMode() {
     await b.ready;
     await wait(400);
 
-    // regression: the server must reject a check on an incomplete grid
     a.ws.send(JSON.stringify({ type: "cell", index: 0, value: correctFor(0) }));
     await wait(400);
     a.ws.send(JSON.stringify({ type: "check" }));
@@ -170,7 +167,6 @@ async function regressions() {
     await b.ready;
     await wait(400);
 
-    // The Redis echo must not revert rapid consecutive keystrokes.
     for (let index = 0; index < 12; index++) {
       a.ws.send(JSON.stringify({ type: "cell", index, value: correctFor(index) }));
       a.ws.send(JSON.stringify({ type: "commit", index }));
@@ -186,7 +182,6 @@ async function regressions() {
       "regression: every rapid cell stays marked correct",
     );
 
-    // Pending debounced answers must be flushed when the socket closes.
     a.ws.send(JSON.stringify({ type: "cell", index: 50, value: correctFor(50) }));
     a.ws.close();
     await wait(1200);
@@ -197,7 +192,6 @@ async function regressions() {
       "regression: answers are flushed to Postgres on disconnect",
     );
 
-    // A reconnecting finished player must be told they already finished.
     fillBoard(b);
     await wait(1500);
     b.ws.close();
@@ -215,8 +209,6 @@ async function regressions() {
   }
 }
 
-// A half-typed number must not be judged on opponents' grids until the player
-// moves on from the cell — otherwise "1" of "12" flashes red.
 async function commitMasking() {
   const seeded = await seedLobby("INPUT");
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
@@ -256,7 +248,6 @@ async function commitMasking() {
       "commit: verdict appears once the cell is committed",
     );
 
-    // Re-editing a committed cell hides the verdict again.
     a.ws.send(JSON.stringify({ type: "cell", index, value: full.slice(0, 1) }));
     await wait(600);
     results.check(

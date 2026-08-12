@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Gloria_Hallelujah, M_PLUS_Rounded_1c } from "next/font/google";
+import { Gloria_Hallelujah, M_PLUS_Rounded_1c } from "next/font/google";
 import localFont from "next/font/local";
 import Providers from "@/components/providers";
 import Script from "next/script";
@@ -13,11 +13,6 @@ const mPlusRounded = M_PLUS_Rounded_1c({
   subsets: ["latin"],
   display: "swap",
   preload: false,
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 const gloriaHallelujah = Gloria_Hallelujah({
@@ -60,7 +55,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${mPlusRounded.variable} ${geistMono.variable} ${gloriaHallelujah.variable} ${dseg.variable} antialiased`}
+        className={`${mPlusRounded.variable} ${gloriaHallelujah.variable} ${dseg.variable} antialiased`}
       >
         <Providers>
           <div className="">{children}</div>

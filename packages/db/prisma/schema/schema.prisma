@@ -59,6 +59,12 @@ model Lobby {
   FinishedAt    DateTime?
   ExpiresAt     DateTime?
 
+  DiscordInstanceId String? @unique
+  DiscordChannelId  String?
+  DiscordGuildId    String?
+  NextLobbyId       String?
+  SettingsOpen      Boolean @default(false)
+
   Players Player[]
 
   @@index([Status, LastUpdated])
@@ -77,10 +83,14 @@ model Player {
   CorrectCount Int  @default(0)
   FilledCount  Int  @default(0)
 
+  DiscordUserId String?
+  DiscordAvatar String?
+
   JoinedAt   DateTime  @default(now())
   LastSeenAt DateTime  @updatedAt
   LastPingAt DateTime?
   FinishedAt DateTime?
 
+  @@unique([LobbyId, DiscordUserId])
   @@index([LobbyId])
 }

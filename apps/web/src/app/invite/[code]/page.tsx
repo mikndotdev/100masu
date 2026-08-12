@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { joinLobby, lookupInvite } from "@/actions/lobby";
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { inviteErrorKey, MAX_NAME_LENGTH, normalizeInviteCode } from "@/lib/lobby";
 
 export default function InviteJoinPage() {
@@ -104,7 +104,7 @@ export default function InviteJoinPage() {
             </div>
           ) : null}
 
-          <label className="form-control">
+          <label className="flex flex-col">
             <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
             <input
               type="text"
@@ -112,7 +112,7 @@ export default function InviteJoinPage() {
               autoComplete="nickname"
               maxLength={MAX_NAME_LENGTH}
               placeholder={t("mp.namePlaceholder")}
-              className="input input-bordered w-full"
+              className="input w-full"
               value={name}
               onChange={(event) => setName(event.target.value)}
               onKeyDown={(event) => {

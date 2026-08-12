@@ -9,9 +9,9 @@ import { toast } from "sonner";
 
 import { createLobby } from "@/actions/lobby";
 import Captcha from "@/components/captcha";
-import LanguageSwitch from "@/components/languageSwitch";
-import SettingsForm from "@/components/settingsForm";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SettingsForm from "@100masu/ui/components/settingsForm";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { settingsParsers } from "@/lib/gameParams";
 
 function MultiplayerSetupContent() {
@@ -63,11 +63,11 @@ function MultiplayerSetupContent() {
 
       <div className="card w-full bg-base-200 shadow-xl">
         <div className="card-body gap-6">
-          <label className="form-control">
+          <label className="flex flex-col">
             <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
             <input
               type="text"
-              className="input input-bordered w-full"
+              className="input w-full"
               value={name}
               maxLength={20}
               autoComplete="nickname"

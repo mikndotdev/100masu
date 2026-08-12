@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@100masu/config": "workspace:*",
-    "@types/node": "^22.13.14",
+    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

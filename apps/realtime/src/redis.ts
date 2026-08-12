@@ -24,6 +24,8 @@ export type GameEvent = {
   finishedAt: number | null;
   placement: number | null;
   timeMs: number | null;
+  discordUserId: string | null;
+  avatar: string | null;
 };
 
 async function keepSubscribed(channel: string, onMessage: (message: string) => void) {
@@ -56,6 +58,10 @@ export async function subscribeToGameEvents(onGameEvent: (event: GameEvent) => v
 
 export async function publishGameEvent(event: GameEvent) {
   await publisher.publish(GAME_CHANNEL, JSON.stringify(event));
+}
+
+export async function publishLobbyEvent(lobbyId: string) {
+  await publisher.publish(LOBBY_CHANNEL, lobbyId);
 }
 
 export async function touchPresence(playerId: string) {

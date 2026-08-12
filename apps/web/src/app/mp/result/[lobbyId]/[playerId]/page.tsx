@@ -7,12 +7,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitch from "@/components/languageSwitch";
-import { useSoundEffect } from "@/components/soundProvider";
-import SoundToggle from "@/components/soundToggle";
-import SpectateCarousel from "@/components/spectateCarousel";
-import { useLobbyChannel } from "@/hooks/useLobbyChannel";
-import { useSpectateChannel } from "@/hooks/useSpectateChannel";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import { useSoundEffect } from "@100masu/ui/components/soundProvider";
+import SoundToggle from "@100masu/ui/components/soundToggle";
+import SpectateCarousel from "@100masu/ui/components/spectateCarousel";
+import { useLobbyChannel } from "@100masu/ui/hooks/useLobbyChannel";
+import { useSpectateChannel } from "@100masu/ui/hooks/useSpectateChannel";
 import { formatDuration } from "@/lib/game";
 
 export default function MultiplayerResultPage() {

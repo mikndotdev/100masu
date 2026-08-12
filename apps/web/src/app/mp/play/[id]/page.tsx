@@ -8,25 +8,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import CurrentCalculation from "@/components/currentCalculation";
-import GameBoard from "@/components/gameBoard";
-import LanguageSwitch from "@/components/languageSwitch";
-import Leaderboard from "@/components/leaderboard";
-import OpponentsPane from "@/components/opponentsPane";
-import { useSoundEffect } from "@/components/soundProvider";
-import SoundToggle from "@/components/soundToggle";
-import Stopwatch from "@/components/stopwatch";
-import TitleScreen from "@/components/titleScreen";
-import WinScreen from "@/components/winScreen";
-import { useLobbyChannel } from "@/hooks/useLobbyChannel";
-import { usePlayChannel, type FinishEvent } from "@/hooks/usePlayChannel";
+import CurrentCalculation from "@100masu/ui/components/currentCalculation";
+import GameBoard from "@100masu/ui/components/gameBoard";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import Leaderboard from "@100masu/ui/components/leaderboard";
+import OpponentsPane from "@100masu/ui/components/opponentsPane";
+import { useSoundEffect } from "@100masu/ui/components/soundProvider";
+import SoundToggle from "@100masu/ui/components/soundToggle";
+import Stopwatch from "@100masu/ui/components/stopwatch";
+import TitleScreen from "@100masu/ui/components/titleScreen";
+import WinScreen from "@100masu/ui/components/winScreen";
+import { useLobbyChannel } from "@100masu/ui/hooks/useLobbyChannel";
+import { usePlayChannel, type FinishEvent } from "@100masu/ui/hooks/usePlayChannel";
 import { checkAnswer, countProgress, formatDuration, GRID_SIZE } from "@/lib/game";
 import { MAX_PLAYERS } from "@/lib/lobby";
-import { useOpponentsStore } from "@/stores/opponents";
+import { useOpponentsStore } from "@100masu/ui/store/opponents";
 
 type ActiveCell = { row: number; col: number };
 
 const INTRO_GRACE_MS = 15_000;
+const MAX_RECHECKS = 3;
 
 export default function MultiplayerPlayPage() {
   const { t } = useTranslation();
@@ -52,6 +53,8 @@ export default function MultiplayerPlayPage() {
   const navigated = useRef(false);
   const syncedRef = useRef(0);
   const lastCheckToast = useRef(0);
+  const recheckedFor = useRef<string | null>(null);
+  const recheckAttempts = useRef(0);
   const resetOpponents = useOpponentsStore((state) => state.reset);
 
   useEffect(() => {
@@ -92,7 +95,6 @@ export default function MultiplayerPlayPage() {
   useEffect(() => {
     onFinish((event: FinishEvent) => {
       if (event.playerId === playerId) {
-        // Winning *now* earns the celebration; arriving already-finished does not.
         if (!navigated.current) {
           setWinPending(true);
         }
@@ -125,9 +127,18 @@ export default function MultiplayerPlayPage() {
   }, [game?.finishedAt, winPending, goToResult]);
 
   useEffect(() => {
-    if (checkResult && !checkResult.solved && progress?.solved) {
-      sendCheck();
+    if (!checkResult || checkResult.solved || !progress?.solved) {
+      return;
     }
+    const signature = `${checkResult.correct}/${checkResult.answerable}/${checkResult.cells}`;
+    if (recheckedFor.current === signature || recheckAttempts.current >= MAX_RECHECKS) {
+      return;
+    }
+    if (!sendCheck()) {
+      return;
+    }
+    recheckedFor.current = signature;
+    recheckAttempts.current += 1;
   }, [checkResult, progress?.solved, sendCheck]);
 
   function handleCellChange(index: number, value: string) {

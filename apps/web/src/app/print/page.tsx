@@ -6,8 +6,8 @@ import { useQueryState } from "nuqs";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import LanguageSwitch from "@/components/languageSwitch";
-import SoundToggle from "@/components/soundToggle";
+import LanguageSwitch from "@100masu/ui/components/languageSwitch";
+import SoundToggle from "@100masu/ui/components/soundToggle";
 import { puzzleParser } from "@/lib/gameParams";
 
 const PrintWorksheet = dynamic(() => import("@/components/printWorksheet"), {
@@ -49,7 +49,7 @@ function PrintPageContent() {
             <SoundToggle />
           </div>
           <label className="label cursor-pointer gap-2">
-            <span className="label-text">{t("print.answerKey")}</span>
+            <span>{t("print.answerKey")}</span>
             <input
               type="checkbox"
               className="toggle toggle-primary"

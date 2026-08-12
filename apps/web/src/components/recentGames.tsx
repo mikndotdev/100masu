@@ -75,7 +75,7 @@ export default function RecentGames() {
           const completed = puzzle.finishedAt !== null;
 
           return (
-            <div key={game.id} className="card card-compact bg-base-200">
+            <div key={game.id} className="card card-sm bg-base-200">
               <div className="card-body flex-row items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex flex-wrap items-center gap-2 font-semibold">
