@@ -1,25 +1,69 @@
-# Discord Activity spike
+# 100masu — Discord Activity
 
-A throwaway one-screen app that proves the four things about Discord Activities that can only be
-checked by running inside the real Discord client. It is **not** the game — no board, no lobby,
-no database.
+The multiplayer game as a Discord voice-channel Activity. The voice channel _is_ the lobby:
+`instanceId` keys it, players are Discord users, and there are no invite codes, no captcha, no
+cookies and no name entry.
 
-It renders a checklist that goes green step by step, so when something fails you can see exactly
-which step and why:
+Gameplay is the same server-authoritative engine the website uses — `apps/realtime` plus
+`@100masu/game` — and every component comes from `@100masu/ui`. This app only adds the identity
+layer and three screens.
 
-1. SDK constructed (`frame_id` present)
-2. Handshake with the Discord client
-3. `authorize()` returned a code
-4. Code exchanged **server-side** for a token
-5. `authenticate()` accepted the token
-6. Participants fetched
-7. WebSocket open through the proxy
-8. Echo frame received back
+## Screens
 
-## Why the token exchange lives in `apps/realtime`
+- **Setup** — shared settings form, participant list, Start. The first person in is host; a
+  switch lets them open settings to everyone. Start stays with the host.
+- **Play** — countdown, board, opponents pane, leaderboard, win animation.
+- **Result** — placement, times, spectate carousel, and Play again.
 
-`POST /discord/token` there holds the client secret. It must never be shipped to the browser,
-so the browser sends only the short-lived `code` and gets back an access token.
+## Why the endpoints live in `apps/realtime`
+
+This app has no backend of its own, and the client secret must never reach the browser. So
+`apps/realtime` owns:
+
+| Route                     | Purpose                                                                   |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `POST /discord/session`   | exchange the code, verify identity via `users/@me`, upsert lobby + player |
+| `PATCH /discord/settings` | change settings (host, or anyone when settings are open)                  |
+| `PATCH /discord/lobby`    | host toggles the open-settings switch                                     |
+| `POST /discord/start`     | host starts; generates the board                                          |
+| `POST /discord/rematch`   | new round bound to the same voice channel                                 |
+
+**Identity is verified server-side.** The browser never tells us who it is — the server exchanges
+the code, calls `users/@me` with the resulting token, and trusts only that. A client cannot claim
+another Discord user.
+
+**Host transfer.** If the host's lobby socket closes while the lobby is still open, the server
+promotes a random _connected_ player after a 10s grace period, cancelled if they reconnect.
+Promoting a player who had already left would strand the badge on someone absent and deadlock
+Start, so only connected players are eligible.
+
+## Rich presence
+
+The activity requests `rpc.activities.write` alongside `identify` and `guilds`, and pushes the
+player's game status via `setActivity`:
+
+```
+● 100masu
+   Addition · 1–10          details
+   42 / 100 correct         state   (Discord appends "(3 of 10)" from party.size)
+   03:12 elapsed            timestamps.start
+```
+
+`timestamps.start` and `party.size` are rendered by Discord itself, so the elapsed counter stays
+accurate with no updates at all. Only the score line is ever pushed, and that is **deduped and
+throttled to one update per 5s with a trailing flush**. Discord doesn't publish the activity
+rate limit, so the design stays well under any plausible one. Presence text follows the player's
+selected language.
+
+**Adding this scope means everyone re-consents.** `prompt: "none"` can only skip the dialog when
+the existing grant already covers every requested scope, so testers will see the consent screen
+once more after this change.
+
+**A refused scope must not brick the activity.** `authorize()` runs before anything else, so a
+failure there would leave a permanently stuck loading screen. It therefore authorizes with the
+presence scope and, on failure, **retries once with the base scopes** and runs with presence
+disabled — visible as `presenceEnabled: false` and in the console breadcrumb. Losing presence is
+acceptable; losing the game is not. `setActivity` errors are swallowed for the same reason.
 
 ## Setup
 
@@ -33,21 +77,21 @@ so the browser sends only the short-lived `code` and gets back an access token.
 
 ### 2. Env
 
-`apps/discord/.env.local` (copy from `.env.example`):
+`apps/discord/.env` (or `.env.local` — Vite reads both):
 
 ```
 VITE_DISCORD_CLIENT_ID=<client id>
 ```
 
-`apps/realtime/.env` — append these two:
+`apps/realtime/.env`:
 
 ```
 DISCORD_CLIENT_ID=<client id>
 DISCORD_CLIENT_SECRET=<client secret>
 ```
 
-Both are optional in `packages/env/src/server.ts`, so the rest of the stack keeps booting
-without them; `/discord/token` returns `503 {"error":"unconfigured"}` until they're set.
+Both are optional in `packages/env/src/server.ts`, so the rest of the stack keeps booting without
+them; `/discord/session` returns `503 {"error":"unconfigured"}` until they're set.
 
 ### 3. Run it — three terminals
 
@@ -58,70 +102,37 @@ cloudflared tunnel --url http://localhost:5173
 ```
 
 Discord will not load `localhost`, hence the tunnel. Vite is configured with
-`allowedHosts: true` and `hmr.clientPort: 443` so the tunnel host isn't rejected.
-
-The realtime server also needs to be publicly reachable — either point at the deployed one or
-run a second tunnel for `:8080`.
+`allowedHosts: true` and `hmr.clientPort: 443` so the tunnel host isn't rejected. The realtime
+server also needs to be publicly reachable — point at the deployed one, or run a second tunnel.
 
 ### 4. URL Mappings
 
-**Activities → URL Mappings**:
+**Activities → URL Mappings**. Every external host is `blocked:csp` inside the iframe, Discord's
+own CDN included, so all four rows are required:
 
-| Prefix | Target |
-| --- | --- |
-| `/` | the `:5173` tunnel host |
-| `/rt` | the realtime host |
-| `/cdn` | `cdn.discordapp.com` |
+| Prefix        | Target                  | Without it             |
+| ------------- | ----------------------- | ---------------------- |
+| `/`           | the `:5173` tunnel host | nothing loads          |
+| `/rt`         | the realtime host       | no gameplay            |
+| `/cdn`        | `cdn.discordapp.com`    | no avatars             |
+| `/cdn-sounds` | `cdn.mikn.dev`          | **the game is silent** |
 
-`/cdn` is what makes **avatars** work. Every external host is `blocked:csp` inside the iframe,
-Discord's own CDN included, so `<Avatar>` builds its URLs against `AVATAR_BASE` (`/cdn` by
-default) rather than hitting `cdn.discordapp.com` directly. Override with `VITE_AVATAR_BASE` if
-you map a different prefix.
-
-The same applies to **sounds** — `@100masu/ui` reads them from `soundBaseUrl`, which currently
-defaults to `cdn.mikn.dev`. The real screens will need a mapping for that too, or the game will
-be silent inside Discord.
+Override the defaults with `VITE_AVATAR_BASE` and `VITE_SOUND_BASE` if you map other prefixes.
 
 ### 5. Launch
 
-Join a voice channel in a server where the app is installed, open the activity shelf, and
-launch it.
+Join a voice channel in a server where the app is installed, open the activity shelf, and launch.
 
-## Passing looks like
-
-- All eight steps green.
-- `instanceId`, `channelId`, `guildId` all populated.
-- Your Discord display name shown under **authenticated as** — it came from the OAuth exchange,
-  not from the client.
-- A second person joining the voice channel appears in **Participants** with no reload.
-- **echo frames** ticking up once a second.
-- No `blocked:csp` in the console.
-
-## Result — passed, 2026-08-12
-
-All eight steps green, echo frames flowing. The screen has since been rebuilt on `@100masu/ui`
-(DaisyUI `synthwave`, shared `<Avatar>`), so relaunching now also proves the shared package
-renders under Vite and that avatars survive the CSP.
-
-Recorded findings:
+## Recorded findings from the spike
 
 **The URL Mapping prefix is stripped in transit.** The client connects to
-`wss://{clientId}.discordsays.com/rt/channels/ping`, and the realtime server only registers
-`/channels/ping`. Elysia matches routes exactly, so the socket could only have opened if the
-proxy removed `/rt` before forwarding. Consequence for the real build: the existing WS hooks
-need their **base host** swapped, not a path prefix added — `usePlayChannel`,
-`useLobbyChannel` and `useSpectateChannel` all build their URL from the single
-`NEXT_PUBLIC_REALTIME_BACKEND_URL`, so this stays a one-value change.
+`wss://{clientId}.discordsays.com/rt/channels/play`, and the realtime server only registers
+`/channels/play`. Elysia matches routes exactly, so the socket could only open if the proxy
+removed `/rt` first. Hence the hooks take a **base host**, not a path prefix.
 
 **`patchUrlMappings` was not needed.** Everything is requested with same-origin relative URLs,
-which resolve to the proxied origin on their own. The SDK helper is only required for
-third-party libraries that hardcode external hosts.
+which resolve to the proxied origin on their own. The SDK helper is only for third-party
+libraries that hardcode external hosts.
 
-**WebSockets survive the proxy in both directions**, confirming the whole realtime layer
-transfers unchanged.
-
-## Cleaning up afterwards
-
-`ws /channels/ping` in `apps/realtime/src/index.ts` exists only for this spike. Either delete
-it or keep it deliberately as a dependency-free liveness probe — but don't leave it around by
-accident. `POST /discord/token` is **not** throwaway; the real build needs it.
+**WebSockets survive the proxy in both directions**, which is what let the whole realtime layer
+transfer unchanged.

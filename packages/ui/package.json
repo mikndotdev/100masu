@@ -16,24 +16,24 @@
   },
   "dependencies": {
     "@100masu/game": "workspace:*",
-    "howler": "^2.2.4",
-    "i18next": "^26.3.6",
+    "howler": "catalog:",
+    "i18next": "catalog:",
     "lucide-react": "catalog:",
-    "motion": "^12.42.2",
-    "react-i18next": "^17.0.11",
-    "vaul": "^1.1.2",
+    "motion": "catalog:",
+    "react-i18next": "catalog:",
+    "vaul": "catalog:",
     "zod": "catalog:",
-    "zustand": "^5.0.14"
+    "zustand": "catalog:"
+  },
+  "devDependencies": {
+    "@100masu/config": "workspace:*",
+    "@types/howler": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"
-  },
-  "devDependencies": {
-    "@100masu/config": "workspace:*",
-    "@types/howler": "^2.2.13",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "typescript": "catalog:"
   }
 }

@@ -16,6 +16,8 @@ export const lobbySnapshotSchema = z.object({
   inviteCode: z.string(),
   status: z.enum(["OPEN", "IN_PROGRESS", "COMPLETED"]),
   allowLateJoin: z.boolean().default(false),
+  settingsOpen: z.boolean().default(false),
+  nextLobbyId: z.string().nullable().default(null),
   startedAt: z.number().nullable(),
   op: z.enum(["add", "sub", "mul", "div"]).default("add"),
   check: z.enum(["input", "end"]).default("input"),

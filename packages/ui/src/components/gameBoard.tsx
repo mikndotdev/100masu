@@ -152,7 +152,7 @@ export default function GameBoard({
                     onBlur={() => handleBlur(index)}
                     onFocus={() => handleFocus(index, row, col)}
                     onKeyDown={(event) => handleKeyDown(event, row, col)}
-                    className={`input input-bordered size-full min-w-0 rounded-md p-0 text-center text-2xl font-bold [appearance:textfield] [font-family:var(--font-gloria)] md:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputStateClass(
+                    className={`input size-full min-w-0 rounded-md p-0 text-center text-2xl font-bold [appearance:textfield] [font-family:var(--font-gloria)] focus:outline-none md:text-3xl [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${inputStateClass(
                       answerable,
                       shouldShow,
                       correct,

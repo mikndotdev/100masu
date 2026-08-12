@@ -44,6 +44,8 @@ export const mikochi = {
     host: "へやをつくったひと",
     you: "きみ",
     startGame: "ゲームをはじめる！",
+    openSettings: "みんながせっていをかえられるようにする",
+    playAgain: "もういっかいあそぶ！",
     needTwoPlayers: "はじめるにはふたりいじょうひつようだよ！",
     invite: "ともだちをよぶ",
     inviteCode: "あいことば",
@@ -103,6 +105,12 @@ export const mikochi = {
     hoursAgo: "{{value}}じかんまえ",
     daysAgo_one: "{{count}}にちまえ",
     daysAgo_other: "{{count}}にちまえ",
+  },
+  presence: {
+    lobby: "へやでまってるよ",
+    waiting: "はじまるのをまってる！",
+    finished: "{{place}} でゴール！",
+    inTime: "タイムは {{time}}",
   },
   play: {
     numbers: "{{start}}–{{end}}",

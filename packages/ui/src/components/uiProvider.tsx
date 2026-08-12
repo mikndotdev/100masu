@@ -4,19 +4,18 @@ import { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 
 import { UiConfigProvider, type UiConfig } from "../config";
-import i18n, { LANGUAGE_STORAGE_KEY } from "../i18n";
+import i18n, { initI18n, type Language } from "../i18n";
 import { SoundProvider } from "./soundProvider";
 
-export default function UiProvider({
-  children,
-  ...config
-}: Partial<UiConfig> & { children: React.ReactNode }) {
+type UiProviderProps = Partial<UiConfig> & {
+  children: React.ReactNode;
+  defaultLanguage?: Language;
+};
+
+export default function UiProvider({ children, defaultLanguage, ...config }: UiProviderProps) {
   useEffect(() => {
-    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (stored && stored !== i18n.resolvedLanguage) {
-      void i18n.changeLanguage(stored);
-    }
-  }, []);
+    initI18n(defaultLanguage);
+  }, [defaultLanguage]);
 
   return (
     <UiConfigProvider {...config}>

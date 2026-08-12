@@ -16,7 +16,7 @@ export { default as Avatar } from "./components/avatar";
 
 export { SoundProvider, useSoundEffect } from "./components/soundProvider";
 export { avatarUrl, UiConfigProvider, useUiConfig, type UiConfig } from "./config";
-export { default as i18n, LANGUAGE_STORAGE_KEY } from "./i18n";
+export { default as i18n, initI18n, LANGUAGE_STORAGE_KEY, type Language } from "./i18n";
 export { soundUrl, type SoundKey } from "./lib/sounds";
 
 export { useLobbyChannel } from "./hooks/useLobbyChannel";

@@ -4,7 +4,8 @@ import { type CheckMode, type Operation, type Order } from "@/lib/game";
 
 export * from "@100masu/ui/protocol";
 
-export const MAX_PLAYERS = 10;
+export { MAX_PLAYERS } from "@/lib/game";
+
 export const MIN_PLAYERS = 2;
 export const INVITE_CODE_LENGTH = 6;
 export const MAX_NAME_LENGTH = 20;

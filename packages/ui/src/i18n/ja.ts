@@ -43,6 +43,8 @@ export const ja = {
     host: "マスター",
     you: "あなた",
     startGame: "ゲーム開始",
+    openSettings: "全員が設定を変更できるようにする",
+    playAgain: "もう一度遊ぶ",
     needTwoPlayers: "開始には二人以上のプレイヤーが必要です",
     invite: "招待する",
     inviteCode: "招待コード",
@@ -102,6 +104,12 @@ export const ja = {
     hoursAgo: "{{value}}時間前",
     daysAgo_one: "{{count}}日前",
     daysAgo_other: "{{count}}日前",
+  },
+  presence: {
+    lobby: "ロビーで待機中",
+    waiting: "開始を待っています",
+    finished: "{{place}} でゴール",
+    inTime: "タイム {{time}}",
   },
   play: {
     numbers: "{{start}}–{{end}}",

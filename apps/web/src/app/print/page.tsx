@@ -49,7 +49,7 @@ function PrintPageContent() {
             <SoundToggle />
           </div>
           <label className="label cursor-pointer gap-2">
-            <span className="label-text">{t("print.answerKey")}</span>
+            <span>{t("print.answerKey")}</span>
             <input
               type="checkbox"
               className="toggle toggle-primary"

@@ -43,6 +43,8 @@ export const en = {
     host: "Host",
     you: "You",
     startGame: "Start game",
+    openSettings: "Let everyone change the settings",
+    playAgain: "Play again",
     needTwoPlayers: "You need at least 2 players to start",
     invite: "Invite players",
     inviteCode: "Invite code",
@@ -102,6 +104,12 @@ export const en = {
     hoursAgo: "{{value}} hr ago",
     daysAgo_one: "{{count}} day ago",
     daysAgo_other: "{{count}} days ago",
+  },
+  presence: {
+    lobby: "In the lobby",
+    waiting: "Waiting to start",
+    finished: "Finished {{place}}",
+    inTime: "in {{time}}",
   },
   play: {
     numbers: "Numbers {{start}}–{{end}}",

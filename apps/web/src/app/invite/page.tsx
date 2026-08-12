@@ -53,7 +53,7 @@ export default function InviteCodePage() {
 
       <div className="card w-full bg-base-200 shadow-xl">
         <div className="card-body gap-6">
-          <label className="form-control">
+          <label className="flex flex-col">
             <span className="mb-1 font-semibold">{t("invite.codeLabel")}</span>
             <input
               type="text"
@@ -62,7 +62,7 @@ export default function InviteCodePage() {
               autoCapitalize="characters"
               maxLength={INVITE_CODE_LENGTH}
               placeholder={t("invite.codePlaceholder")}
-              className={`input input-bordered w-full text-center font-mono text-3xl tracking-[0.3em] uppercase ${
+              className={`input w-full text-center font-mono text-3xl tracking-[0.3em] uppercase ${
                 error ? "input-error" : ""
               }`}
               value={code}

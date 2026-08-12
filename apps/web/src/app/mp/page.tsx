@@ -63,11 +63,11 @@ function MultiplayerSetupContent() {
 
       <div className="card w-full bg-base-200 shadow-xl">
         <div className="card-body gap-6">
-          <label className="form-control">
+          <label className="flex flex-col">
             <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
             <input
               type="text"
-              className="input input-bordered w-full"
+              className="input w-full"
               value={name}
               maxLength={20}
               autoComplete="nickname"

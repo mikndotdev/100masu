@@ -19,6 +19,8 @@ export type GameSocket = { id: string; send: (data: unknown) => void; close: () 
 type PlayerState = {
   id: string;
   name: string;
+  discordUserId: string | null;
+  avatar: string | null;
   answers: string[];
   committed: Set<number>;
   filled: number;
@@ -76,11 +78,15 @@ function toPlayerState(row: {
   FilledCount: number;
   CorrectCount: number;
   FinishedAt: Date | null;
+  DiscordUserId: string | null;
+  DiscordAvatar: string | null;
 }): PlayerState {
   const answers = answersOf(row.Answers);
   return {
     id: row.Id,
     name: row.Name,
+    discordUserId: row.DiscordUserId,
+    avatar: row.DiscordAvatar,
     answers,
     committed: committedFromAnswers(answers),
     filled: row.FilledCount,
@@ -175,6 +181,8 @@ function progressOf(lobby: LobbyState, player: PlayerState) {
   return {
     playerId: player.id,
     name: player.name,
+    discordUserId: player.discordUserId,
+    avatar: player.avatar,
     cells: buildCellStates(
       lobby.board,
       lobby.op,
@@ -242,6 +250,8 @@ function deliver(event: GameEvent) {
       type: "progress",
       playerId: event.playerId,
       name: event.name,
+      discordUserId: event.discordUserId,
+      avatar: event.avatar,
       cells: event.cells,
       filled: event.filled,
       correct: event.correct,
@@ -264,6 +274,8 @@ function deliver(event: GameEvent) {
       type: "spectateProgress",
       playerId: event.playerId,
       name: event.name,
+      discordUserId: event.discordUserId,
+      avatar: event.avatar,
       answers: event.answers,
       filled: event.filled,
       correct: event.correct,
@@ -289,6 +301,8 @@ export function fanOutGameEvent(event: GameEvent) {
     lobby.players.set(event.playerId, {
       id: event.playerId,
       name: event.name,
+      discordUserId: event.discordUserId,
+      avatar: event.avatar,
       answers: event.answers,
       committed: committedFromAnswers(event.answers),
       filled: event.filled,
@@ -307,6 +321,8 @@ function buildEvent(lobby: LobbyState, player: PlayerState): GameEvent {
     lobbyId: lobby.lobbyId,
     playerId: player.id,
     name: player.name,
+    discordUserId: player.discordUserId,
+    avatar: player.avatar,
     cells: buildCellStates(
       lobby.board,
       lobby.op,

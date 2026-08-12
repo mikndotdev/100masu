@@ -42,14 +42,14 @@ export default function SettingsForm({ settings, onChange }: SettingsFormProps) 
     <>
       <div>
         <span className="mb-2 block font-semibold">{t("setup.operation")}</span>
-        <div className="join flex flex-wrap">
+        <div className="grid grid-cols-2 gap-2">
           {OPERATIONS.map((operation) => (
             <button
               key={operation}
               type="button"
               aria-pressed={settings.op === operation}
               onClick={() => onChange({ op: operation })}
-              className={`btn join-item ${settings.op === operation ? "btn-primary" : "btn-ghost"}`}
+              className={`btn ${settings.op === operation ? "btn-primary" : "btn-ghost"}`}
             >
               <span className="text-xl">{OPERATION_SYMBOL[operation]}</span>
               <span className="hidden md:inline">{t(`op.${operation}`)}</span>
@@ -59,20 +59,20 @@ export default function SettingsForm({ settings, onChange }: SettingsFormProps) 
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <label className="form-control">
+        <label className="flex flex-col">
           <span className="mb-1 font-semibold">{t("setup.startNumber")}</span>
           <input
             type="number"
-            className="input input-bordered w-full"
+            className="input w-full"
             value={settings.start}
             onChange={(event) => setStart(Number.parseInt(event.target.value, 10) || 0)}
           />
         </label>
-        <label className="form-control">
+        <label className="flex flex-col">
           <span className="mb-1 font-semibold">{t("setup.endNumber")}</span>
           <input
             type="number"
-            className="input input-bordered w-full"
+            className="input w-full"
             value={settings.end}
             onChange={(event) => setEnd(Number.parseInt(event.target.value, 10) || 0)}
           />
