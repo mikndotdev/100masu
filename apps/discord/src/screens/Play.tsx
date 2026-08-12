@@ -162,13 +162,15 @@ export default function Play({ session, snapshot, presence, onFinished }: PlayPr
     if (!checkResult || checkResult.solved || !progress?.solved) {
       return;
     }
-    const signature = `${checkResult.correct}/${checkResult.answerable}`;
+    const signature = `${checkResult.correct}/${checkResult.answerable}/${checkResult.cells}`;
     if (recheckedFor.current === signature || recheckAttempts.current >= MAX_RECHECKS) {
+      return;
+    }
+    if (!sendCheck()) {
       return;
     }
     recheckedFor.current = signature;
     recheckAttempts.current += 1;
-    sendCheck();
   }, [checkResult, progress?.solved, sendCheck]);
 
   useEffect(() => {

@@ -171,9 +171,11 @@ export function usePlayChannel(playerId: string | null, enabled: boolean) {
 
   const sendCheck = useCallback(() => {
     const socket = socketRef.current;
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "check" }));
+    if (socket?.readyState !== WebSocket.OPEN) {
+      return false;
     }
+    socket.send(JSON.stringify({ type: "check" }));
+    return true;
   }, []);
 
   return { game, checkResult, connected, sendCell, sendCommit, sendCheck, onFinish };
