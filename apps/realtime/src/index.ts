@@ -99,8 +99,8 @@ const app = new Elysia()
     { body: t.Object({ code: t.String({ minLength: 1 }) }) },
   )
   .ws("/channels/ping", {
-    message(ws, body) {
-      ws.send({ type: "pong", echo: body, serverNow: Date.now() });
+    message(ws) {
+      ws.send({ type: "pong", serverNow: Date.now() });
     },
   })
   .ws("/channels/lobby", {

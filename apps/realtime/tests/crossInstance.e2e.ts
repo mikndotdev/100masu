@@ -20,8 +20,6 @@ const seeded = await seedLobby("INPUT");
 const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
 try {
-  // Alice is connected to instance A, Bob to instance B. Everything between them
-  // has to travel over Redis pub/sub.
   const a = openSocket(A, "/channels/play", alice.Id);
   const b = openSocket(B, "/channels/play", bob.Id);
   results.check(await a.ready, "instance A accepts alice");

@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
 
   const cutoff = new Date(Date.now() - MAX_AGE_MS);
 
-  // Players are removed by the Lobby relation's onDelete: Cascade.
   const { count } = await prisma.lobby.deleteMany({
     where: {
       OR: [

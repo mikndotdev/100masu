@@ -2,9 +2,6 @@ import prisma from "@100masu/db";
 
 import { HEADERS, Results } from "./helpers";
 
-// Exercises the Vercel cron cleanup endpoint in apps/web. Run the web app first:
-//   cd apps/web && bun run dev          (or `bun run start` against a build)
-// CRON_SECRET must match what the web app has loaded.
 const WEB = process.env.WEB_URL ?? "http://localhost:3001";
 const SECRET = process.env.CRON_SECRET;
 const results = new Results();
@@ -40,7 +37,6 @@ async function seed(label: string, overrides: Record<string, unknown>, pingAt: D
 const old = new Date(Date.now() - 1000 * 60 * 60 * 25);
 const recent = new Date();
 
-// Prisma sets LastUpdated via @updatedAt, so force it with raw SQL to simulate age.
 async function ageLobby(id: string, when: Date) {
   await prisma.$executeRaw`UPDATE "Lobby" SET "LastUpdated" = ${when} WHERE "Id" = ${id}`;
 }

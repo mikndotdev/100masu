@@ -92,7 +92,6 @@ export default function MultiplayerPlayPage() {
   useEffect(() => {
     onFinish((event: FinishEvent) => {
       if (event.playerId === playerId) {
-        // Winning *now* earns the celebration; arriving already-finished does not.
         if (!navigated.current) {
           setWinPending(true);
         }

@@ -36,7 +36,6 @@ export const ja = {
     namePlaceholder: "相手に表示される名前を入れてください",
     createLobby: "ロビーを作る",
     captchaError: "Captchaエラーが発生しました。",
-    comingSoon: "Lobbies aren't ready yet — coming soon!",
     back: "シングルプレイに戻る",
     lobbyTitle: "ロビー",
     players: "プレイヤー",
@@ -73,7 +72,7 @@ export const ja = {
     previous: "前の相手",
     next: "次の相手",
     backToLobby: "マルチプレイに戻る",
-    backToGame: "Back to my game",
+    backToGame: "自分のゲームに戻る",
   },
   invite: {
     title: "ゲームに参加",
@@ -86,8 +85,8 @@ export const ja = {
     join: "ゲームに参加",
     invalidCode: "招待コードが無効です。",
     joinFailed: "ゲームに参加できませんでした。もう一度お試しください。",
-    checking: "Checking that code…",
-    tryAnother: "Try another code",
+    checking: "コードを確認しています…",
+    tryAnother: "別のコードを入力する",
     inProgress: "進行中",
     inProgressNote:
       "このゲームはもう始まっています。すぐに計算画面に移ります。タイマーはすでに動いています。",

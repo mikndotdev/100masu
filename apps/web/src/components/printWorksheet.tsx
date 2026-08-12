@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  // The source is 2000x700, so keep the 20:7 ratio to avoid stretching.
   logo: { width: 46, height: 16, objectFit: "contain" },
   footerText: { fontSize: 9, color: "#777777" },
 });

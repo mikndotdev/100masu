@@ -36,7 +36,6 @@ export const en = {
     namePlaceholder: "Enter your name shown to other players",
     createLobby: "Create lobby",
     captchaError: "Captcha failed. Please try again.",
-    comingSoon: "Lobbies aren't ready yet — coming soon!",
     back: "Back to single player",
     lobbyTitle: "Lobby",
     players: "Players",

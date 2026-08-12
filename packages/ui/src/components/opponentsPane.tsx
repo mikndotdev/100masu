@@ -27,7 +27,7 @@ function OpponentCard({ player, startedAt }: { player: PlayerProgress; startedAt
     finished && startedAt !== null ? formatDuration((player.finishedAt ?? 0) - startedAt) : null;
 
   return (
-    <div className="card card-compact bg-base-200">
+    <div className="card card-sm bg-base-200">
       <div className="card-body gap-2">
         <div className="flex items-center justify-between gap-2">
           <span className="flex min-w-0 items-center gap-1.5">

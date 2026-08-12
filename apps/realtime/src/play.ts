@@ -167,9 +167,6 @@ function revealFor(lobby: LobbyState, player: PlayerState): boolean {
   return lobby.check === "input" || player.finishedAt !== null;
 }
 
-// A half-typed number would otherwise flash as incorrect on opponents' grids, so a
-// cell only shows its verdict once the player has moved on from it. Finishing
-// reveals everything.
 function committedFor(player: PlayerState): ReadonlySet<number> | undefined {
   return player.finishedAt !== null ? undefined : player.committed;
 }
