@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@100masu/db";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -25,15 +25,6 @@ const PLAYER_COOKIE = "mp-player";
 const LOBBY_COOKIE = "mp-lobby";
 const COOKIE_MAX_AGE = 60 * 60 * 6;
 const LOBBY_TTL_MS = 1000 * 60 * 60 * 6;
-
-async function clientIp(): Promise<string> {
-  const headerList = await headers();
-  const forwarded = headerList.get("x-forwarded-for");
-  if (forwarded) {
-    return (forwarded.split(",")[0] ?? "").trim() || "127.0.0.1";
-  }
-  return headerList.get("x-real-ip") ?? "127.0.0.1";
-}
 
 async function setSessionCookies(playerId: string, lobbyId: string) {
   const cookieStore = await cookies();
@@ -83,8 +74,7 @@ export const createLobby = actionClient
   .inputSchema(
     z.object({
       name: playerNameSchema,
-      ticket: z.string().min(1),
-      randstr: z.string().min(1),
+      captchaToken: z.string().min(1),
       op: z.enum(["add", "sub", "mul", "div"]),
       start: z.number().int(),
       end: z.number().int(),
@@ -94,7 +84,7 @@ export const createLobby = actionClient
     }),
   )
   .action(async ({ parsedInput }) => {
-    const passed = await verifyCaptcha(parsedInput.ticket, parsedInput.randstr, await clientIp());
+    const passed = await verifyCaptcha(parsedInput.captchaToken);
     if (!passed) {
       return { ok: false as const, error: "captcha" as const };
     }

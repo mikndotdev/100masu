@@ -77,6 +77,7 @@
         "@swc/helpers": "^0.5.23",
         "babel-plugin-react-compiler": "^1.0.0",
         "canvas-confetti": "catalog:",
+        "cap-widget": "0.1.60",
         "daisyui": "catalog:",
         "dotenv": "catalog:",
         "howler": "catalog:",
@@ -799,6 +800,8 @@
     "caniuse-lite": ["caniuse-lite@1.0.30001806", "", {}, "sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw=="],
 
     "canvas-confetti": ["canvas-confetti@1.9.4", "", {}, "sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw=="],
+
+    "cap-widget": ["cap-widget@0.1.60", "", {}, "sha512-YC1DyI9Pa1NIkDJf8XdpyTDw1PQEo3VHWIInahNWFANmJ14FQ8gkrARmJr3ucO/jk8PQffJTlVr0C47OGF+8gQ=="],
 
     "chokidar": ["chokidar@5.0.0", "", { "dependencies": { "readdirp": "^5.0.0" } }, "sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw=="],
 

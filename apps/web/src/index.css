@@ -11,3 +11,15 @@
 body {
   font-family: var(--font-mplus-rounded), ui-sans-serif, system-ui, sans-serif;
 }
+
+cap-widget {
+  --cap-background: var(--color-base-100);
+  --cap-border-color: var(--color-base-300);
+  --cap-color: var(--color-base-content);
+  --cap-checkbox-background: var(--color-base-200);
+  --cap-checkbox-border: 1px solid color-mix(in oklab, var(--color-base-content) 40%, transparent);
+  --cap-spinner-background-color: var(--color-base-300);
+  --cap-spinner-color: var(--color-primary);
+  --cap-focus-ring: var(--color-primary);
+  --cap-troubleshoot-color: var(--color-secondary);
+}
