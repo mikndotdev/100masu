@@ -26,7 +26,7 @@
     "ioredis": "^5.11.1",
     "lucide-react": "catalog:",
     "motion": "catalog:",
-    "next": "^16.2.0",
+    "next": "^16.4.5",
     "next-safe-action": "^8.6.0",
     "next-themes": "catalog:",
     "nuqs": "^2.9.1",
