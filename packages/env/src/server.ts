@@ -6,9 +6,7 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
     REDIS_URL: z.string().min(1),
-    CAPTCHA_SECRET: z.string().min(1),
-    TENCENTCLOUD_SECRET_ID: z.string().min(1),
-    TENCENTCLOUD_SECRET_KEY: z.string().min(1),
+    CAP_SECRET: z.string().min(1),
     CRON_SECRET: z.string().min(1).optional(),
     DISCORD_CLIENT_ID: z.string().min(1).optional(),
     DISCORD_CLIENT_SECRET: z.string().min(1).optional(),

@@ -17,29 +17,38 @@ import { settingsParsers } from "@/lib/gameParams";
 function MultiplayerSetupContent() {
   const { t } = useTranslation();
   const [settings, setSettings] = useQueryStates(settingsParsers);
-  const [captcha, setCaptcha] = useState<{ ticket: string; randstr: string } | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaKey, setCaptchaKey] = useState(0);
   const [name, setName] = useState("");
   const [allowLateJoin, setAllowLateJoin] = useState(false);
+
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    setCaptchaKey((key) => key + 1);
+  }
 
   const { execute, isPending } = useAction(createLobby, {
     onSuccess: ({ data }) => {
       if (data && !data.ok) {
+        resetCaptcha();
         toast.error(t(data.error === "captcha" ? "mp.captchaError" : "mp.createFailed"));
       }
     },
-    onError: () => toast.error(t("mp.createFailed")),
+    onError: () => {
+      resetCaptcha();
+      toast.error(t("mp.createFailed"));
+    },
   });
 
-  const canCreate = captcha !== null && name.trim() !== "" && !isPending;
+  const canCreate = captchaToken !== null && name.trim() !== "" && !isPending;
 
   function handleCreateLobby() {
-    if (!canCreate || !captcha) {
+    if (!canCreate || !captchaToken) {
       return;
     }
     execute({
       name: name.trim(),
-      ticket: captcha.ticket,
-      randstr: captcha.randstr,
+      captchaToken,
       op: settings.op,
       start: settings.start,
       end: settings.end,
@@ -94,9 +103,10 @@ function MultiplayerSetupContent() {
           <div className="divider my-0" />
 
           <Captcha
-            onVerify={(ticket, randstr) => setCaptcha({ ticket, randstr })}
+            key={captchaKey}
+            onVerify={setCaptchaToken}
             onError={() => {
-              setCaptcha(null);
+              setCaptchaToken(null);
               toast.error(t("mp.captchaError"));
             }}
           />

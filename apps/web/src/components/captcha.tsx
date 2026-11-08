@@ -1,14 +1,12 @@
 "use client";
 
 import { env } from "@100masu/env/web";
-import Script from "next/script";
-import { useEffect, useRef, useState } from "react";
+import type { CapErrorEvent, CapSolveEvent, CapWidget } from "cap-widget";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-const SCRIPT_SRC = "https://ca.turing.captcha.qcloud.com/TJNCaptcha-global.js";
-
 type CaptchaProps = {
-  onVerify: (ticket: string, randstr: string) => void;
+  onVerify: (token: string) => void;
   onError?: () => void;
 };
 
@@ -18,51 +16,42 @@ function captchaLanguage(language: string | undefined): string {
 
 export default function Captcha({ onVerify, onError }: CaptchaProps) {
   const { i18n } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<TencentCaptchaInstance | null>(null);
+  const widgetRef = useRef<CapWidget>(null);
   const handlersRef = useRef({ onVerify, onError });
-  const [ready, setReady] = useState(false);
-
-  const language = captchaLanguage(i18n.resolvedLanguage);
 
   useEffect(() => {
     handlersRef.current = { onVerify, onError };
   }, [onVerify, onError]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const CaptchaConstructor = window.TencentCaptcha;
-    if (!ready || !container || !CaptchaConstructor || instanceRef.current) {
+    const widget = widgetRef.current;
+    if (!widget) {
       return;
     }
 
-    const instance = new CaptchaConstructor(
-      container,
-      env.NEXT_PUBLIC_CAPTCHA_SITEKEY,
-      (result) => {
-        if (result.ret === 0 && result.ticket && result.randstr) {
-          handlersRef.current.onVerify(result.ticket, result.randstr);
-          return;
-        }
-        if (result.errorCode) {
-          handlersRef.current.onError?.();
-        }
-      },
-      { type: "Embed", enableDarkMode: "force", userLanguage: language },
-    );
-    instanceRef.current = instance;
-    instance.show();
+    const handleSolve = (event: CapSolveEvent) => handlersRef.current.onVerify(event.detail.token);
+    const handleError = (event: CapErrorEvent) => {
+      console.error(`captcha: ${event.detail.code} ${event.detail.message}`);
+      handlersRef.current.onError?.();
+    };
+
+    widget.addEventListener("solve", handleSolve);
+    widget.addEventListener("error", handleError);
+    void import("cap-widget");
 
     return () => {
-      instance.destroy();
-      instanceRef.current = null;
+      widget.removeEventListener("solve", handleSolve);
+      widget.removeEventListener("error", handleError);
     };
-  }, [ready, language]);
+  }, []);
 
   return (
-    <>
-      <Script src={SCRIPT_SRC} strategy="afterInteractive" onReady={() => setReady(true)} />
-      <div ref={containerRef} className="min-h-14" />
-    </>
+    <div className="min-h-14">
+      <cap-widget
+        ref={widgetRef}
+        data-cap-api-endpoint={env.NEXT_PUBLIC_CAP_API_ENDPOINT}
+        data-cap-lang={captchaLanguage(i18n.resolvedLanguage)}
+      />
+    </div>
   );
 }
