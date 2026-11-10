@@ -18,8 +18,6 @@ function storedLanguage(): Language | null {
 }
 
 export function initI18n(fallback: Language = "ja") {
-  const initial = storedLanguage() ?? fallback;
-
   if (!i18n.isInitialized) {
     void i18n.use(initReactI18next).init({
       resources: {
@@ -27,7 +25,7 @@ export function initI18n(fallback: Language = "ja") {
         ja: { translation: ja },
         mikochi: { translation: mikochi },
       },
-      lng: initial,
+      lng: fallback,
       fallbackLng: fallback,
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
@@ -35,6 +33,7 @@ export function initI18n(fallback: Language = "ja") {
     return;
   }
 
+  const initial = storedLanguage() ?? fallback;
   if (initial !== i18n.resolvedLanguage) {
     void i18n.changeLanguage(initial);
   }

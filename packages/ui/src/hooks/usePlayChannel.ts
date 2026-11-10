@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { z } from "zod";
+import { useCallback, useRef, useState } from "react";
 
 import type { Board, CheckMode, Operation } from "@100masu/game";
 import { useUiConfig } from "../config";
 import { channelUrl } from "../lib/channelUrl";
 import { playMessageSchema } from "../protocol";
 import { useOpponentsStore } from "../store/opponents";
+import { useReconnectingSocket } from "./useReconnectingSocket";
 
 const PING_MS = 25_000;
 
@@ -29,14 +29,17 @@ export type CheckResult = {
   solved: boolean;
   at: number;
 };
+type PlayClientMessage =
+  | { type: "cell"; index: number; value: string }
+  | { type: "commit"; index: number }
+  | { type: "check" };
+
 export type FinishEvent = { playerId: string; name: string; placement: number; timeMs: number };
 
 export function usePlayChannel(playerId: string | null, enabled: boolean) {
   const { realtimeBaseUrl } = useUiConfig();
   const [game, setGame] = useState<PlayGame | null>(null);
   const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
-  const [connected, setConnected] = useState(false);
-  const socketRef = useRef<WebSocket | null>(null);
   const finishRef = useRef<((event: FinishEvent) => void) | null>(null);
   const outbox = useRef<Map<number, string>>(new Map());
   const setAll = useOpponentsStore((state) => state.setAll);
@@ -46,137 +49,74 @@ export function usePlayChannel(playerId: string | null, enabled: boolean) {
     finishRef.current = handler;
   }, []);
 
-  useEffect(() => {
-    if (!enabled || !playerId) {
-      return;
-    }
-    const url = channelUrl(realtimeBaseUrl, "/channels/play", { id: playerId });
-    if (!url) {
-      return;
-    }
-
-    let closed = false;
-    let attempt = 0;
-    let retry: ReturnType<typeof setTimeout> | undefined;
-    let ping: ReturnType<typeof setInterval> | undefined;
-
-    function connect() {
-      if (closed || !url) {
+  const onMessage = useCallback(
+    (data: unknown) => {
+      const result = playMessageSchema.safeParse(data);
+      if (!result.success) {
         return;
       }
-      const socket = new WebSocket(url);
-      socketRef.current = socket;
+      const parsed = result.data;
 
-      socket.onopen = () => {
-        attempt = 0;
-        setConnected(true);
-        for (const [index, value] of outbox.current) {
-          socket.send(JSON.stringify({ type: "cell", index, value }));
-        }
-        outbox.current.clear();
-        ping = setInterval(() => {
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: "ping" }));
-          }
-        }, PING_MS);
-      };
-
-      socket.onmessage = (event) => {
-        let parsed: z.infer<typeof playMessageSchema>;
-        try {
-          const result = playMessageSchema.safeParse(JSON.parse(String(event.data)));
-          if (!result.success) {
-            return;
-          }
-          parsed = result.data;
-        } catch {
-          return;
-        }
-
-        if (parsed.type === "game") {
-          setGame({
-            board: parsed.board,
-            op: parsed.op,
-            check: parsed.check,
-            startedAt: parsed.startedAt,
-            clockOffset: Date.now() - parsed.serverNow,
-            answers: parsed.you.answers,
-            finishedAt: parsed.you.finishedAt,
-            syncedAt: Date.now(),
-          });
-          setAll(parsed.players);
-          return;
-        }
-
-        if (parsed.type === "progress") {
-          upsert(parsed);
-          return;
-        }
-
-        if (parsed.type === "checkResult") {
-          setCheckResult({ ...parsed, at: Date.now() });
-          return;
-        }
-
-        if (parsed.type === "finished") {
-          finishRef.current?.(parsed);
-        }
-      };
-
-      socket.onclose = () => {
-        setConnected(false);
-        if (ping) {
-          clearInterval(ping);
-        }
-        if (closed) {
-          return;
-        }
-        attempt += 1;
-        retry = setTimeout(connect, Math.min(1000 * 2 ** (attempt - 1), 10000));
-      };
-
-      socket.onerror = () => socket.close();
-    }
-
-    connect();
-
-    return () => {
-      closed = true;
-      if (retry) {
-        clearTimeout(retry);
+      if (parsed.type === "game") {
+        setGame({
+          board: parsed.board,
+          op: parsed.op,
+          check: parsed.check,
+          startedAt: parsed.startedAt,
+          clockOffset: Date.now() - parsed.serverNow,
+          answers: parsed.you.answers,
+          finishedAt: parsed.you.finishedAt,
+          syncedAt: Date.now(),
+        });
+        setAll(parsed.players);
+        return;
       }
-      if (ping) {
-        clearInterval(ping);
+
+      if (parsed.type === "progress") {
+        upsert(parsed);
+        return;
       }
-      socketRef.current?.close();
-      socketRef.current = null;
-    };
-  }, [playerId, enabled, setAll, upsert, realtimeBaseUrl]);
 
-  const sendCell = useCallback((index: number, value: string) => {
-    const socket = socketRef.current;
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "cell", index, value }));
-      return;
-    }
-    outbox.current.set(index, value);
-  }, []);
+      if (parsed.type === "checkResult") {
+        setCheckResult({ ...parsed, at: Date.now() });
+        return;
+      }
 
-  const sendCommit = useCallback((index: number) => {
-    const socket = socketRef.current;
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ type: "commit", index }));
-    }
-  }, []);
+      if (parsed.type === "finished") {
+        finishRef.current?.(parsed);
+      }
+    },
+    [setAll, upsert],
+  );
 
-  const sendCheck = useCallback(() => {
-    const socket = socketRef.current;
-    if (socket?.readyState !== WebSocket.OPEN) {
-      return false;
-    }
-    socket.send(JSON.stringify({ type: "check" }));
-    return true;
-  }, []);
+  const url =
+    enabled && playerId
+      ? channelUrl(realtimeBaseUrl, "/masu/channels/play", { id: playerId })
+      : null;
+
+  const { connected, send } = useReconnectingSocket<PlayClientMessage>(url, {
+    pingMs: PING_MS,
+    onMessage,
+    onOpen: () => {
+      for (const [index, value] of outbox.current) {
+        send({ type: "cell", index, value });
+      }
+      outbox.current.clear();
+    },
+  });
+
+  const sendCell = useCallback(
+    (index: number, value: string) => {
+      if (!send({ type: "cell", index, value })) {
+        outbox.current.set(index, value);
+      }
+    },
+    [send],
+  );
+
+  const sendCommit = useCallback((index: number) => send({ type: "commit", index }), [send]);
+
+  const sendCheck = useCallback(() => send({ type: "check" }), [send]);
 
   return { game, checkResult, connected, sendCell, sendCommit, sendCheck, onFinish };
 }

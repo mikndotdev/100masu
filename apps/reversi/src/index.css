@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "@100masu/ui/styles/base.css";
+@source "../../../packages/ui/src";
+@plugin "daisyui" {
+  themes: forest --default;
+}
+
+.disc {
+  transform-style: preserve-3d;
+  transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.disc[data-color="W"] {
+  transform: rotateY(180deg);
+}
+
+.disc-face {
+  backface-visibility: hidden;
+}
+
+.disc-face-white {
+  transform: rotateY(180deg);
+}
+
+@keyframes disc-drop {
+  from {
+    scale: 1.4;
+    opacity: 0;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+.disc-placed {
+  animation: disc-drop 220ms ease-out;
+}

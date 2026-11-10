@@ -110,8 +110,8 @@ export type TestSocket = {
   ready: Promise<boolean>;
 };
 
-export function openSocket(base: string, path: string, id: string): TestSocket {
-  const ws = new WebSocket(`${base}${path}?id=${id}`);
+export function openSocket(base: string, path: string, params: Record<string, string>): TestSocket {
+  const ws = new WebSocket(`${base}${path}?${new URLSearchParams(params)}`);
   const msgs: Record<string, unknown>[] = [];
   let closed = false;
 

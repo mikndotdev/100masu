@@ -20,6 +20,7 @@ export { default as i18n, initI18n, LANGUAGE_STORAGE_KEY, type Language } from "
 export { soundUrl, type SoundKey } from "./lib/sounds";
 
 export { useLobbyChannel } from "./hooks/useLobbyChannel";
+export { useReconnectingSocket } from "./hooks/useReconnectingSocket";
 export {
   usePlayChannel,
   type CheckResult,

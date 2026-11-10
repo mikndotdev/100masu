@@ -37,7 +37,7 @@ export function createSession(input: {
   channelId?: string;
   guildId?: string;
 }): Promise<Session> {
-  return send<Session>("/discord/session", "POST", input);
+  return send<Session>("/masu/discord/session", "POST", input);
 }
 
 export function pushSettings(input: {
@@ -48,7 +48,7 @@ export function pushSettings(input: {
   order: "seq" | "rand";
   check: "input" | "end";
 }): Promise<{ ok: true }> {
-  return send("/discord/settings", "PATCH", input);
+  return send("/masu/discord/settings", "PATCH", input);
 }
 
 export function pushSettingsOpen(
@@ -56,13 +56,13 @@ export function pushSettingsOpen(
   token: string,
   open: boolean,
 ): Promise<{ ok: true }> {
-  return send("/discord/lobby", "PATCH", { playerId, token, open });
+  return send("/masu/discord/lobby", "PATCH", { playerId, token, open });
 }
 
 export function startGame(playerId: string, token: string): Promise<{ ok: true }> {
-  return send("/discord/start", "POST", { playerId, token });
+  return send("/masu/discord/start", "POST", { playerId, token });
 }
 
 export function requestRematch(playerId: string, token: string): Promise<{ lobbyId: string }> {
-  return send("/discord/rematch", "POST", { playerId, token });
+  return send("/masu/discord/rematch", "POST", { playerId, token });
 }

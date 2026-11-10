@@ -37,7 +37,7 @@ async function seed(status: "OPEN" | "IN_PROGRESS") {
 }
 
 function openLobbySocket(playerId: string) {
-  const ws = new WebSocket(`${BASE}/channels/lobby?player=${playerId}`);
+  const ws = new WebSocket(`${BASE}/masu/channels/lobby?player=${playerId}`);
   const msgs: Record<string, unknown>[] = [];
   ws.onmessage = (event) => {
     try {

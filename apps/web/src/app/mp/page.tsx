@@ -8,10 +8,12 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { createLobby } from "@/actions/lobby";
-import Captcha from "@/components/captcha";
+import { env } from "@100masu/env/web";
+import Captcha from "@100masu/ui/components/captcha";
 import LanguageSwitch from "@100masu/ui/components/languageSwitch";
 import SettingsForm from "@100masu/ui/components/settingsForm";
 import SoundToggle from "@100masu/ui/components/soundToggle";
+import { Stagger, StaggerItem } from "@100masu/ui/components/stagger";
 import { settingsParsers } from "@/lib/gameParams";
 
 function MultiplayerSetupContent() {
@@ -65,68 +67,79 @@ function MultiplayerSetupContent() {
         <SoundToggle />
       </div>
 
-      <header className="text-center">
-        <h1 className="text-4xl font-bold md:text-5xl">{t("mp.title")}</h1>
-        <p className="mt-2 text-base-content/70">{t("mp.tagline")}</p>
-      </header>
+      <Stagger className="contents">
+        <StaggerItem>
+          <header className="text-center">
+            <h1 className="text-4xl font-bold md:text-5xl">{t("mp.title")}</h1>
+            <p className="mt-2 text-base-content/70">{t("mp.tagline")}</p>
+          </header>
+        </StaggerItem>
 
-      <div className="card w-full bg-base-200 shadow-xl">
-        <div className="card-body gap-6">
-          <label className="flex flex-col">
-            <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
-            <input
-              type="text"
-              className="input w-full"
-              value={name}
-              maxLength={20}
-              autoComplete="nickname"
-              placeholder={t("mp.namePlaceholder")}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </label>
+        <StaggerItem className="w-full">
+          <div className="card w-full bg-base-200 shadow-xl">
+            <div className="card-body gap-6">
+              <label className="flex flex-col">
+                <span className="mb-1 font-semibold">{t("mp.nameLabel")}</span>
+                <input
+                  type="text"
+                  className="input w-full"
+                  value={name}
+                  maxLength={20}
+                  autoComplete="nickname"
+                  placeholder={t("mp.namePlaceholder")}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </label>
 
-          <SettingsForm settings={settings} onChange={(next) => void setSettings(next)} />
+              <SettingsForm settings={settings} onChange={(next) => void setSettings(next)} />
 
-          <label className="flex cursor-pointer items-start justify-between gap-4">
-            <span className="flex flex-col">
-              <span className="font-semibold">{t("setup.allowLateJoin")}</span>
-              <span className="text-sm text-base-content/60">{t("setup.allowLateJoinHint")}</span>
-            </span>
-            <input
-              type="checkbox"
-              className="toggle toggle-primary shrink-0"
-              checked={allowLateJoin}
-              onChange={(event) => setAllowLateJoin(event.target.checked)}
-            />
-          </label>
+              <label className="flex cursor-pointer items-start justify-between gap-4">
+                <span className="flex flex-col">
+                  <span className="font-semibold">{t("setup.allowLateJoin")}</span>
+                  <span className="text-sm text-base-content/60">
+                    {t("setup.allowLateJoinHint")}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary shrink-0"
+                  checked={allowLateJoin}
+                  onChange={(event) => setAllowLateJoin(event.target.checked)}
+                />
+              </label>
 
-          <div className="divider my-0" />
+              <div className="divider my-0" />
 
-          <Captcha
-            key={captchaKey}
-            onVerify={setCaptchaToken}
-            onError={() => {
-              setCaptchaToken(null);
-              toast.error(t("mp.captchaError"));
-            }}
-          />
+              <Captcha
+                key={captchaKey}
+                endpoint={env.NEXT_PUBLIC_CAP_API_ENDPOINT}
+                onVerify={setCaptchaToken}
+                onError={() => {
+                  setCaptchaToken(null);
+                  toast.error(t("mp.captchaError"));
+                }}
+              />
 
-          <div className="card-actions">
-            <button
-              type="button"
-              className="btn btn-primary btn-lg w-full"
-              disabled={!canCreate}
-              onClick={handleCreateLobby}
-            >
-              {isPending ? <span className="loading loading-spinner" /> : t("mp.createLobby")}
-            </button>
+              <div className="card-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-lg w-full"
+                  disabled={!canCreate}
+                  onClick={handleCreateLobby}
+                >
+                  {isPending ? <span className="loading loading-spinner" /> : t("mp.createLobby")}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </StaggerItem>
 
-      <Link href="/" className="btn btn-ghost">
-        {t("mp.back")}
-      </Link>
+        <StaggerItem>
+          <Link href="/" className="btn btn-ghost">
+            {t("mp.back")}
+          </Link>
+        </StaggerItem>
+      </Stagger>
     </main>
   );
 }

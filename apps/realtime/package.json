@@ -12,12 +12,14 @@
     "test:e2e:cleanup": "bun run tests/cleanup.e2e.ts",
     "test:e2e:late": "bun run tests/lateJoin.e2e.ts",
     "test:e2e:discord": "bun run tests/discord.e2e.ts",
-    "test:e2e:host": "bun run tests/hostTransfer.e2e.ts"
+    "test:e2e:host": "bun run tests/hostTransfer.e2e.ts",
+    "test:e2e:reversi": "bun run tests/reversi.e2e.ts"
   },
   "dependencies": {
     "@100masu/db": "workspace:*",
     "@100masu/env": "workspace:*",
     "@100masu/game": "workspace:*",
+    "@100masu/reversi": "workspace:*",
     "@elysiajs/cors": "^1.4.2",
     "elysia": "1"
   },

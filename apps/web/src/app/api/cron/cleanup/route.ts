@@ -1,5 +1,5 @@
 import prisma from "@100masu/db";
-import { env } from "@100masu/env/server";
+import { isAuthorizedCron } from "@100masu/server/cron";
 import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -7,8 +7,7 @@ export const dynamic = "force-dynamic";
 const MAX_AGE_MS = 1000 * 60 * 60 * 24;
 
 export async function GET(request: NextRequest) {
-  const secret = env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!isAuthorizedCron(request)) {
     return new Response("Unauthorized", { status: 401 });
   }
 

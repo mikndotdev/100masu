@@ -10,6 +10,7 @@ import LanguageSwitch from "@100masu/ui/components/languageSwitch";
 import RecentGames from "@/components/recentGames";
 import SettingsForm from "@100masu/ui/components/settingsForm";
 import SoundToggle from "@100masu/ui/components/soundToggle";
+import { Stagger, StaggerItem } from "@100masu/ui/components/stagger";
 import { emptyAnswers, generateBoard } from "@/lib/game";
 import {
   type PuzzleState,
@@ -48,44 +49,52 @@ function HomePageContent() {
         <SoundToggle />
       </div>
 
-      <header className="text-center">
-        <h1 className="text-4xl font-bold md:text-5xl">{t("app.title")}</h1>
-        <p className="mt-2 text-base-content/70">{t("app.tagline")}</p>
-      </header>
+      <Stagger className="contents">
+        <StaggerItem>
+          <header className="text-center">
+            <h1 className="text-4xl font-bold md:text-5xl">{t("app.title")}</h1>
+            <p className="mt-2 text-base-content/70">{t("app.tagline")}</p>
+          </header>
+        </StaggerItem>
 
-      <div className="card w-full bg-base-200 shadow-xl">
-        <div className="card-body gap-6">
-          <SettingsForm settings={settings} onChange={(next) => void setSettings(next)} />
+        <StaggerItem className="w-full">
+          <div className="card w-full bg-base-200 shadow-xl">
+            <div className="card-body gap-6">
+              <SettingsForm settings={settings} onChange={(next) => void setSettings(next)} />
 
-          <div className="card-actions mt-2 flex-col gap-4">
-            <div className="grid w-full grid-cols-2 gap-4">
-              <button
-                type="button"
-                className="btn btn-primary btn-lg"
-                onClick={() => launch("play")}
-              >
-                {t("setup.play")}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-lg"
-                onClick={() => launch("print")}
-              >
-                {t("setup.print")}
-              </button>
+              <div className="card-actions mt-2 flex-col gap-4">
+                <div className="grid w-full grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-lg"
+                    onClick={() => launch("play")}
+                  >
+                    {t("setup.play")}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-lg"
+                    onClick={() => launch("print")}
+                  >
+                    {t("setup.print")}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-accent btn-lg w-full"
+                  onClick={goToMultiplayer}
+                >
+                  {t("setup.multiplayer")}
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              className="btn btn-accent btn-lg w-full"
-              onClick={goToMultiplayer}
-            >
-              {t("setup.multiplayer")}
-            </button>
           </div>
-        </div>
-      </div>
+        </StaggerItem>
 
-      <RecentGames />
+        <StaggerItem className="w-full">
+          <RecentGames />
+        </StaggerItem>
+      </Stagger>
     </main>
   );
 }

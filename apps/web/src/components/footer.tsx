@@ -13,7 +13,7 @@ export default function Footer() {
       <div className="flex items-center gap-3 text-primary">
         <p>&copy; 2020-{new Date().getFullYear()} MikanDev</p>
         <a
-          href="https://github.com/mikndotdev/100masu"
+          href="https://github.com/mikndotdev/asobi"
           target="_blank"
           rel="noreferrer"
           aria-label="GitHub"

@@ -1,0 +1,22 @@
+{
+  "name": "@100masu/reversi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./protocol": "./src/protocol.ts",
+    "./identity": "./src/identity.ts"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@100masu/config": "workspace:*",
+    "@types/bun": "^1.3.14",
+    "typescript": "catalog:"
+  }
+}

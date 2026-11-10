@@ -20,13 +20,13 @@ layer and three screens.
 This app has no backend of its own, and the client secret must never reach the browser. So
 `apps/realtime` owns:
 
-| Route                     | Purpose                                                                   |
-| ------------------------- | ------------------------------------------------------------------------- |
-| `POST /discord/session`   | exchange the code, verify identity via `users/@me`, upsert lobby + player |
-| `PATCH /discord/settings` | change settings (host, or anyone when settings are open)                  |
-| `PATCH /discord/lobby`    | host toggles the open-settings switch                                     |
-| `POST /discord/start`     | host starts; generates the board                                          |
-| `POST /discord/rematch`   | new round bound to the same voice channel                                 |
+| Route                          | Purpose                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| `POST /masu/discord/session`   | exchange the code, verify identity via `users/@me`, upsert lobby + player |
+| `PATCH /masu/discord/settings` | change settings (host, or anyone when settings are open)                  |
+| `PATCH /masu/discord/lobby`    | host toggles the open-settings switch                                     |
+| `POST /masu/discord/start`     | host starts; generates the board                                          |
+| `POST /masu/discord/rematch`   | new round bound to the same voice channel                                 |
 
 **Identity is verified server-side.** The browser never tells us who it is — the server exchanges
 the code, calls `users/@me` with the resulting token, and trusts only that. A client cannot claim
@@ -91,7 +91,7 @@ DISCORD_CLIENT_SECRET=<client secret>
 ```
 
 Both are optional in `packages/env/src/server.ts`, so the rest of the stack keeps booting without
-them; `/discord/session` returns `503 {"error":"unconfigured"}` until they're set.
+them; `/masu/discord/session` returns `503 {"error":"unconfigured"}` until they're set.
 
 ### 3. Run it — three terminals
 
@@ -126,8 +126,8 @@ Join a voice channel in a server where the app is installed, open the activity s
 ## Recorded findings from the spike
 
 **The URL Mapping prefix is stripped in transit.** The client connects to
-`wss://{clientId}.discordsays.com/rt/channels/play`, and the realtime server only registers
-`/channels/play`. Elysia matches routes exactly, so the socket could only open if the proxy
+`wss://{clientId}.discordsays.com/rt/masu/channels/play`, and the realtime server only registers
+`/masu/channels/play`. Elysia matches routes exactly, so the socket could only open if the proxy
 removed `/rt` first. Hence the hooks take a **base host**, not a path prefix.
 
 **`patchUrlMappings` was not needed.** Everything is requested with same-origin relative URLs,
