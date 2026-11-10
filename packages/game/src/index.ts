@@ -2,6 +2,7 @@ export const GRID_SIZE = 10;
 export const CELL_COUNT = GRID_SIZE * GRID_SIZE;
 export const INTRO_MS = 5400;
 export const MAX_PLAYERS = 10;
+export const LOBBY_EVENTS_CHANNEL = "lobby:events";
 
 export type Operation = "add" | "sub" | "mul" | "div";
 export type Order = "seq" | "rand";

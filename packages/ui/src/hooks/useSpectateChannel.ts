@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 import type { Board, CheckMode, Operation } from "@100masu/game";
 import { useUiConfig } from "../config";
 import { channelUrl } from "../lib/channelUrl";
 import { spectateMessageSchema, type SpectatePlayer } from "../protocol";
+import { useReconnectingSocket } from "./useReconnectingSocket";
 
 export type SpectateState = {
   board: Board;
@@ -17,89 +18,38 @@ export type SpectateState = {
 export function useSpectateChannel(playerId: string | null, enabled: boolean) {
   const { realtimeBaseUrl } = useUiConfig();
   const [state, setState] = useState<SpectateState | null>(null);
-  const [connected, setConnected] = useState(false);
-  const socketRef = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
-    if (!enabled || !playerId) {
+  const onMessage = useCallback((data: unknown) => {
+    const result = spectateMessageSchema.safeParse(data);
+    if (!result.success) {
       return;
     }
-    const url = channelUrl(realtimeBaseUrl, "/channels/spectate", { id: playerId });
-    if (!url) {
+    const message = result.data;
+    if (message.type === "spectate") {
+      setState({
+        board: message.board,
+        op: message.op,
+        check: message.check,
+        players: message.players,
+      });
       return;
     }
-
-    let closed = false;
-    let attempt = 0;
-    let retry: ReturnType<typeof setTimeout> | undefined;
-
-    function connect() {
-      if (closed || !url) {
-        return;
+    setState((prev) => {
+      if (!prev) {
+        return prev;
       }
-      const socket = new WebSocket(url);
-      socketRef.current = socket;
+      const players = prev.players.some((player) => player.playerId === message.playerId)
+        ? prev.players.map((player) => (player.playerId === message.playerId ? message : player))
+        : [...prev.players, message];
+      return { ...prev, players };
+    });
+  }, []);
 
-      socket.onopen = () => {
-        attempt = 0;
-        setConnected(true);
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const result = spectateMessageSchema.safeParse(JSON.parse(String(event.data)));
-          if (!result.success) {
-            return;
-          }
-          const message = result.data;
-          if (message.type === "spectate") {
-            setState({
-              board: message.board,
-              op: message.op,
-              check: message.check,
-              players: message.players,
-            });
-            return;
-          }
-          setState((prev) => {
-            if (!prev) {
-              return prev;
-            }
-            const players = prev.players.some((player) => player.playerId === message.playerId)
-              ? prev.players.map((player) =>
-                  player.playerId === message.playerId ? message : player,
-                )
-              : [...prev.players, message];
-            return { ...prev, players };
-          });
-        } catch {
-          return;
-        }
-      };
-
-      socket.onclose = () => {
-        setConnected(false);
-        if (closed) {
-          return;
-        }
-        attempt += 1;
-        retry = setTimeout(connect, Math.min(1000 * 2 ** (attempt - 1), 10000));
-      };
-
-      socket.onerror = () => socket.close();
-    }
-
-    connect();
-
-    return () => {
-      closed = true;
-      if (retry) {
-        clearTimeout(retry);
-      }
-      socketRef.current?.close();
-      socketRef.current = null;
-    };
-  }, [playerId, enabled, realtimeBaseUrl]);
+  const url =
+    enabled && playerId
+      ? channelUrl(realtimeBaseUrl, "/masu/channels/spectate", { id: playerId })
+      : null;
+  const { connected } = useReconnectingSocket(url, { onMessage });
 
   return { state, connected };
 }

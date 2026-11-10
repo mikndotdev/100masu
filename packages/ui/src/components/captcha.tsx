@@ -1,11 +1,19 @@
 "use client";
 
-import { env } from "@100masu/env/web";
 import type { CapErrorEvent, CapSolveEvent, CapWidget } from "cap-widget";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "cap-widget": DetailedHTMLProps<HTMLAttributes<CapWidget>, CapWidget>;
+    }
+  }
+}
+
 type CaptchaProps = {
+  endpoint: string;
   onVerify: (token: string) => void;
   onError?: () => void;
 };
@@ -14,7 +22,7 @@ function captchaLanguage(language: string | undefined): string {
   return language === "en" ? "en" : "ja";
 }
 
-export default function Captcha({ onVerify, onError }: CaptchaProps) {
+export default function Captcha({ endpoint, onVerify, onError }: CaptchaProps) {
   const { i18n } = useTranslation();
   const widgetRef = useRef<CapWidget>(null);
   const handlersRef = useRef({ onVerify, onError });
@@ -49,7 +57,7 @@ export default function Captcha({ onVerify, onError }: CaptchaProps) {
     <div className="min-h-14">
       <cap-widget
         ref={widgetRef}
-        data-cap-api-endpoint={env.NEXT_PUBLIC_CAP_API_ENDPOINT}
+        data-cap-api-endpoint={endpoint}
         data-cap-lang={captchaLanguage(i18n.resolvedLanguage)}
       />
     </div>

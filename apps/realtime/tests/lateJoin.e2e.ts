@@ -22,8 +22,8 @@ async function lateJoin() {
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
   try {
-    const a = openSocket(BASE, "/channels/play", alice.Id);
-    const b = openSocket(BASE, "/channels/play", bob.Id);
+    const a = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    const b = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     results.check(await a.ready, "late: alice socket opens");
     results.check(await b.ready, "late: bob socket opens");
     await wait(400);
@@ -32,7 +32,7 @@ async function lateJoin() {
       data: { LobbyId: seeded.lobby.Id, Name: "Carol", Status: "PLAYING" },
     });
 
-    const c = openSocket(BASE, "/channels/play", carol.Id);
+    const c = openSocket(BASE, "/masu/channels/play", { id: carol.Id });
     results.check(await c.ready, "late: joiner's socket opens");
     await wait(600);
 
@@ -96,7 +96,7 @@ async function lateJoin() {
 }
 
 async function unknownPlayer() {
-  const socket = openSocket(BASE, "/channels/play", "definitely-not-a-player-id");
+  const socket = openSocket(BASE, "/masu/channels/play", { id: "definitely-not-a-player-id" });
   await socket.ready;
   await wait(500);
   results.check(

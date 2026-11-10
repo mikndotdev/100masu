@@ -8,13 +8,15 @@ import {
   type Operation,
 } from "@100masu/game";
 
-import { INSTANCE_ID, publishGameEvent, touchPresence, type GameEvent } from "./redis";
+import { INSTANCE_ID, touchPresence } from "../../shared/pubsub";
+import { publishGameEvent, type GameEvent } from "./events";
 
 const WRITE_DEBOUNCE_MS = 400;
 const PRESENCE_FLUSH_MS = 60_000;
 const PRESENCE_THROTTLE_MS = 15_000;
 
 export type GameSocket = { id: string; send: (data: unknown) => void; close: () => void };
+type PlayMessage = { type: string; index?: number; value?: string };
 
 type PlayerState = {
   id: string;
@@ -43,6 +45,7 @@ const playRooms = new Map<string, Map<string, GameSocket>>();
 const spectateRooms = new Map<string, Map<string, GameSocket>>();
 const socketPlayer = new Map<string, { lobbyId: string; playerId: string }>();
 const closedSockets = new Set<string>();
+const openingPlay = new Map<string, PlayMessage[]>();
 const pendingWrites = new Map<string, ReturnType<typeof setTimeout>>();
 const livePlayers = new Set<string>();
 const presenceStamps = new Map<string, number>();
@@ -395,6 +398,15 @@ async function finishPlayer(lobby: LobbyState, player: PlayerState): Promise<boo
 }
 
 export async function openPlaySocket(socket: GameSocket, playerId: string) {
+  openingPlay.set(socket.id, []);
+  try {
+    await bindPlaySocket(socket, playerId);
+  } finally {
+    openingPlay.delete(socket.id);
+  }
+}
+
+async function bindPlaySocket(socket: GameSocket, playerId: string) {
   const player = await prisma.player.findUnique({
     where: { Id: playerId },
     select: { LobbyId: true },
@@ -417,8 +429,8 @@ export async function openPlaySocket(socket: GameSocket, playerId: string) {
   }
   const self = entry.player;
 
-  if (closedSockets.has(socket.id)) {
-    closedSockets.delete(socket.id);
+  const queued = openingPlay.get(socket.id);
+  if (!queued) {
     return;
   }
 
@@ -431,6 +443,12 @@ export async function openPlaySocket(socket: GameSocket, playerId: string) {
   socketPlayer.set(socket.id, { lobbyId: lobby.lobbyId, playerId });
   livePlayers.add(playerId);
   markPresence(playerId);
+
+  for (let message = queued.shift(); message; message = queued.shift()) {
+    await processPlayMessage(socket, message).catch((error: unknown) =>
+      console.error("play: queued message failed", error),
+    );
+  }
 
   socket.send({
     type: "game",
@@ -458,10 +476,16 @@ export async function openPlaySocket(socket: GameSocket, playerId: string) {
   }
 }
 
-export async function handlePlayMessage(
-  socket: GameSocket,
-  body: { type: string; index?: number; value?: string },
-) {
+export async function handlePlayMessage(socket: GameSocket, body: PlayMessage) {
+  const queued = openingPlay.get(socket.id);
+  if (queued) {
+    queued.push(body);
+    return;
+  }
+  await processPlayMessage(socket, body);
+}
+
+async function processPlayMessage(socket: GameSocket, body: PlayMessage) {
   const bound = socketPlayer.get(socket.id);
   if (!bound) {
     return;
@@ -542,10 +566,10 @@ export async function handlePlayMessage(
 }
 
 export async function closePlaySocket(socket: GameSocket) {
+  openingPlay.delete(socket.id);
   const bound = socketPlayer.get(socket.id);
   socketPlayer.delete(socket.id);
   if (!bound) {
-    closedSockets.add(socket.id);
     return;
   }
   livePlayers.delete(bound.playerId);

@@ -21,8 +21,8 @@ const seeded = await seedLobby("INPUT");
 const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
 try {
-  const a = openSocket(A, "/channels/play", alice.Id);
-  const b = openSocket(B, "/channels/play", bob.Id);
+  const a = openSocket(A, "/masu/channels/play", { id: alice.Id });
+  const b = openSocket(B, "/masu/channels/play", { id: bob.Id });
   results.check(await a.ready, "instance A accepts alice");
   results.check(await b.ready, "instance B accepts bob");
   await wait(600);

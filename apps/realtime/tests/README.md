@@ -41,3 +41,15 @@ bun run test:e2e:cross           # terminal 3
 ```
 
 Override the targets with `REALTIME_URL`, or `REALTIME_URL_A` / `REALTIME_URL_B`.
+
+## Reversi
+
+Needs both instances from above; every scenario runs players on different instances.
+
+```sh
+bun run test:e2e:reversi
+```
+
+Covers: seating by identity, spectators, out-of-turn / illegal / stale-version rejection,
+cross-instance move fan-out, presence, forced pass, game end, resign, rematch (created exactly
+once, colors swapped), and clock flags settled both by a live timer and lazily on connect.

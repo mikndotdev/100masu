@@ -1,0 +1,60 @@
+enum ReversiStatus {
+  waiting  @map("WAITING")
+  playing  @map("PLAYING")
+  finished @map("FINISHED")
+}
+
+enum ReversiColor {
+  B @map("BLACK")
+  W @map("WHITE")
+}
+
+enum ReversiEndReason {
+  normal  @map("NORMAL")
+  resign  @map("RESIGN")
+  timeout @map("TIMEOUT")
+}
+
+model ReversiGame {
+  Id          String        @id @default(cuid(2))
+  CreatedAt   DateTime      @default(now())
+  LastUpdated DateTime      @updatedAt
+  InviteCode  String        @unique
+  Status      ReversiStatus @default(waiting)
+
+  Board    String
+  Turn     ReversiColor?
+  Version  Int           @default(0)
+  LastMove Json?
+
+  ClockBaseMs   Int?
+  IncrementMs   Int       @default(0)
+  BlackMs       Int?
+  WhiteMs       Int?
+  TurnStartedAt DateTime?
+
+  Winner     ReversiColor?
+  EndReason  ReversiEndReason?
+  StartedAt  DateTime?
+  FinishedAt DateTime?
+  NextGameId String?
+
+  Players ReversiPlayer[]
+
+  @@index([Status, LastUpdated])
+}
+
+model ReversiPlayer {
+  Id           String       @id @default(cuid(2))
+  Game         ReversiGame  @relation(fields: [GameId], references: [Id], onDelete: Cascade)
+  GameId       String
+  Color        ReversiColor
+  Name         String
+  IdentityHash String
+
+  WantsRematch Boolean  @default(false)
+  JoinedAt     DateTime @default(now())
+
+  @@unique([GameId, Color])
+  @@index([IdentityHash])
+}

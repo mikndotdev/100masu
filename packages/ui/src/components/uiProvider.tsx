@@ -7,6 +7,8 @@ import { UiConfigProvider, type UiConfig } from "../config";
 import i18n, { initI18n, type Language } from "../i18n";
 import { SoundProvider } from "./soundProvider";
 
+const LANGUAGE_DELAY_MS = 2000;
+
 type UiProviderProps = Partial<UiConfig> & {
   children: React.ReactNode;
   defaultLanguage?: Language;
@@ -14,7 +16,13 @@ type UiProviderProps = Partial<UiConfig> & {
 
 export default function UiProvider({ children, defaultLanguage, ...config }: UiProviderProps) {
   useEffect(() => {
-    initI18n(defaultLanguage);
+    const apply = () => initI18n(defaultLanguage);
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(apply, { timeout: LANGUAGE_DELAY_MS });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = setTimeout(apply, 50);
+    return () => clearTimeout(id);
   }, [defaultLanguage]);
 
   return (

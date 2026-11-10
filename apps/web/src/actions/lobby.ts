@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { verifyCaptcha } from "@/lib/captcha";
+import { verifyCaptcha } from "@100masu/server/captcha";
+import { actionClient } from "@100masu/server/safe-action";
 import { generateHeaders, GRID_SIZE, INTRO_MS } from "@/lib/game";
 import {
   CHECK_TO_DB,
@@ -19,7 +20,6 @@ import {
   playerNameSchema,
 } from "@/lib/lobby";
 import { publishLobbyEvent } from "@/lib/redis";
-import { actionClient } from "@/lib/safe-action";
 
 const PLAYER_COOKIE = "mp-player";
 const LOBBY_COOKIE = "mp-lobby";

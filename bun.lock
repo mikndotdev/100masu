@@ -55,11 +55,48 @@
         "@100masu/db": "workspace:*",
         "@100masu/env": "workspace:*",
         "@100masu/game": "workspace:*",
+        "@100masu/reversi": "workspace:*",
         "@elysiajs/cors": "^1.4.2",
         "elysia": "1",
       },
       "devDependencies": {
         "@types/bun": "^1.3.14",
+        "typescript": "catalog:",
+      },
+    },
+    "apps/reversi": {
+      "name": "reversi",
+      "version": "0.1.0",
+      "dependencies": {
+        "@100masu/db": "workspace:*",
+        "@100masu/env": "workspace:*",
+        "@100masu/reversi": "workspace:*",
+        "@100masu/server": "workspace:*",
+        "@100masu/ui": "workspace:*",
+        "@icons-pack/react-simple-icons": "^13.13.0",
+        "@prisma/client": "catalog:",
+        "babel-plugin-react-compiler": "^1.0.0",
+        "daisyui": "catalog:",
+        "i18next": "catalog:",
+        "lucide-react": "catalog:",
+        "motion": "catalog:",
+        "next": "^16.4.5",
+        "next-safe-action": "^8.6.0",
+        "postcss": "^8.5.22",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "react-i18next": "catalog:",
+        "react-qr-code": "^2.2.0",
+        "sonner": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@100masu/config": "workspace:*",
+        "@tailwindcss/postcss": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "tailwindcss": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -70,6 +107,7 @@
         "@100masu/db": "workspace:*",
         "@100masu/env": "workspace:*",
         "@100masu/game": "workspace:*",
+        "@100masu/server": "workspace:*",
         "@100masu/ui": "workspace:*",
         "@icons-pack/react-simple-icons": "^13.13.0",
         "@prisma/client": "catalog:",
@@ -77,12 +115,10 @@
         "@swc/helpers": "^0.5.23",
         "babel-plugin-react-compiler": "^1.0.0",
         "canvas-confetti": "catalog:",
-        "cap-widget": "0.1.60",
         "daisyui": "catalog:",
         "dotenv": "catalog:",
         "howler": "catalog:",
         "i18next": "catalog:",
-        "ioredis": "^5.11.1",
         "lucide-react": "catalog:",
         "motion": "catalog:",
         "next": "^16.4.5",
@@ -119,6 +155,7 @@
       "name": "@100masu/db",
       "dependencies": {
         "@100masu/env": "workspace:*",
+        "@100masu/reversi": "workspace:*",
         "@prisma/adapter-pg": "^7.8.0",
         "@prisma/client": "catalog:",
         "dotenv": "catalog:",
@@ -155,11 +192,37 @@
         "typescript": "catalog:",
       },
     },
+    "packages/reversi": {
+      "name": "@100masu/reversi",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@100masu/config": "workspace:*",
+        "@types/bun": "^1.3.14",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/server": {
+      "name": "@100masu/server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@100masu/env": "workspace:*",
+        "ioredis": "^5.11.1",
+        "next-safe-action": "^8.6.0",
+      },
+      "devDependencies": {
+        "@100masu/config": "workspace:*",
+        "typescript": "catalog:",
+      },
+    },
     "packages/ui": {
       "name": "@100masu/ui",
       "version": "0.0.0",
       "dependencies": {
         "@100masu/game": "workspace:*",
+        "cap-widget": "0.1.60",
         "howler": "catalog:",
         "i18next": "catalog:",
         "lucide-react": "catalog:",
@@ -216,6 +279,10 @@
     "@100masu/env": ["@100masu/env@workspace:packages/env"],
 
     "@100masu/game": ["@100masu/game@workspace:packages/game"],
+
+    "@100masu/reversi": ["@100masu/reversi@workspace:packages/reversi"],
+
+    "@100masu/server": ["@100masu/server@workspace:packages/server"],
 
     "@100masu/ui": ["@100masu/ui@workspace:packages/ui"],
 
@@ -1107,7 +1174,7 @@
 
     "png-js": ["png-js@2.0.0", "", { "dependencies": { "fflate": "^0.8.2" } }, "sha512-GdzJuUMc6ZSpxFJWVxtOH1bzYHym+TOnveqUjb+VJIbZWbZzyiRGFiKhbiielfpYbgMlhHVhsJ0FTazfuRFkMA=="],
 
-    "postcss": ["postcss@8.5.22", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ=="],
+    "postcss": ["postcss@8.5.23", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg=="],
 
     "postcss-value-parser": ["postcss-value-parser@4.2.0", "", {}, "sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ=="],
 
@@ -1170,6 +1237,8 @@
     "ret": ["ret@0.5.0", "", {}, "sha512-I1XxrZSQ+oErkRR4jYbAyEEu2I0avBvvMM5JN+6EBprOGRCs63ENqZ3vjavq8fBw2+62G5LF5XelKwuJpcvcxw=="],
 
     "retry": ["retry@0.12.0", "", {}, "sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow=="],
+
+    "reversi": ["reversi@workspace:apps/reversi"],
 
     "robust-predicates": ["robust-predicates@3.0.3", "", {}, "sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA=="],
 
@@ -1313,11 +1382,11 @@
 
     "@tailwindcss/oxide-wasm32-wasi/tslib": ["tslib@2.8.1", "", { "bundled": true }, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
+    "@tailwindcss/postcss/postcss": ["postcss@8.5.22", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ=="],
+
     "@visx/vendor/d3-array": ["d3-array@3.2.1", "", { "dependencies": { "internmap": "1 - 2" } }, "sha512-gUY/qeHq/yNqqoCKNq4vtpFLdoCdvyNpWoC/KNjhGbhDuQpAM9sIQQKkXSNpXa9h5KySs/gzm7R88WkUutgwWQ=="],
 
     "brotli/base64-js": ["base64-js@1.5.1", "", {}, "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA=="],
-
-    "next/postcss": ["postcss@8.5.23", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg=="],
 
     "pg-types/postgres-array": ["postgres-array@2.0.0", "", {}, "sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA=="],
 
@@ -1328,6 +1397,10 @@
     "unicode-properties/base64-js": ["base64-js@1.5.1", "", {}, "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA=="],
 
     "unicode-trie/pako": ["pako@0.2.9", "", {}, "sha512-NUcwaKxUxWrZLpDG+z/xZaCgQITkA/Dv4V/T6bw7VON6l1Xz/VnrBqrYjZQ12TamKHzITTfOEIYUj48y2KXImA=="],
+
+    "vite/postcss": ["postcss@8.5.22", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ=="],
+
+    "web/postcss": ["postcss@8.5.22", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ=="],
 
     "@radix-ui/react-toggle/@radix-ui/react-primitive/@radix-ui/react-slot": ["@radix-ui/react-slot@1.2.3", "", { "dependencies": { "@radix-ui/react-compose-refs": "1.1.2" }, "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A=="],
 

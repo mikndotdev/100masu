@@ -23,8 +23,8 @@ async function instantMode() {
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
   try {
-    const a = openSocket(BASE, "/channels/play", alice.Id);
-    const b = openSocket(BASE, "/channels/play", bob.Id);
+    const a = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    const b = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     results.check(await a.ready, "instant: alice socket opens");
     results.check(await b.ready, "instant: bob socket opens");
     await wait(400);
@@ -76,7 +76,7 @@ async function instantMode() {
     const cells = (saved?.Answers as { cells?: string[] } | null)?.cells ?? [];
     results.check(cells[0] === correctFor(0), "persist: answers written to Postgres");
 
-    const spectateBob = openSocket(BASE, "/channels/spectate", bob.Id);
+    const spectateBob = openSocket(BASE, "/masu/channels/spectate", { id: bob.Id });
     await spectateBob.ready;
     await wait(700);
     results.check(
@@ -84,7 +84,7 @@ async function instantMode() {
       "SECURITY: spectate refused for an unfinished player",
     );
 
-    const spectateAlice = openSocket(BASE, "/channels/spectate", alice.Id);
+    const spectateAlice = openSocket(BASE, "/masu/channels/spectate", { id: alice.Id });
     results.check(await spectateAlice.ready, "spectate: finished player admitted");
     await wait(700);
     const snapshot = spectateAlice.msgs.find((m) => m.type === "spectate") as
@@ -109,8 +109,8 @@ async function endMode() {
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
   try {
-    const a = openSocket(BASE, "/channels/play", alice.Id);
-    const b = openSocket(BASE, "/channels/play", bob.Id);
+    const a = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    const b = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     await a.ready;
     await b.ready;
     await wait(400);
@@ -161,8 +161,8 @@ async function regressions() {
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
   try {
-    const a = openSocket(BASE, "/channels/play", alice.Id);
-    const b = openSocket(BASE, "/channels/play", bob.Id);
+    const a = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    const b = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     await a.ready;
     await b.ready;
     await wait(400);
@@ -196,7 +196,7 @@ async function regressions() {
     await wait(1500);
     b.ws.close();
     await wait(300);
-    const rejoin = openSocket(BASE, "/channels/play", bob.Id);
+    const rejoin = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     await rejoin.ready;
     await wait(800);
     results.check(
@@ -204,6 +204,19 @@ async function regressions() {
       "regression: reconnecting finished player re-receives finished",
     );
     rejoin.ws.close();
+
+    const reconnect = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    await reconnect.ready;
+    reconnect.ws.send(JSON.stringify({ type: "cell", index: 60, value: correctFor(60) }));
+    await wait(800);
+    const resync = reconnect.msgs.find((m) => m.type === "game") as
+      | { you: { answers: string[] } }
+      | undefined;
+    results.check(
+      resync?.you.answers[60] === correctFor(60),
+      "regression: answers sent before the socket is bound are kept",
+    );
+    reconnect.ws.close();
   } finally {
     await seeded.cleanup();
   }
@@ -214,8 +227,8 @@ async function commitMasking() {
   const [alice, bob] = seeded.players as [(typeof seeded.players)[0], (typeof seeded.players)[0]];
 
   try {
-    const a = openSocket(BASE, "/channels/play", alice.Id);
-    const b = openSocket(BASE, "/channels/play", bob.Id);
+    const a = openSocket(BASE, "/masu/channels/play", { id: alice.Id });
+    const b = openSocket(BASE, "/masu/channels/play", { id: bob.Id });
     await a.ready;
     await b.ready;
     await wait(400);
